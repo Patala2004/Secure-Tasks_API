@@ -41,26 +41,20 @@ jobs:
 
   dependency-scan:
     runs-on: ubuntu-latest
-    needs: unit-tests   # ensure tests run first
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Show directory tree
-        run: |
-          pwd
-          ls -l
-          tree -L 3
-      
-      - name: List files recursively
-        run: find ./secure-tasks-api -name "pom.xml"
+      - name: Download Maven dependencies
+        working-directory: secure-tasks-api
+        run: mvn dependency:copy-dependencies
 
       - name: OWASP Dependency Check
         uses: dependency-check/Dependency-Check_Action@main
         id: Dpcheck
         with:
           project: 'secure-tasks-api'
-          path: './secure-tasks-api'
+          path: './secure-tasks-api/target/dependency'
           format: ALL
           args: >
             --failOnCVSS 7
