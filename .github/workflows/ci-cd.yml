@@ -37,6 +37,7 @@ jobs:
         with:
           project: secure-tasks-api
           scan: .
+          failBuildOnCVSS: 7
 
       # - name: Build Docker Image
       #   run: docker build -t secure-tasks-api .
