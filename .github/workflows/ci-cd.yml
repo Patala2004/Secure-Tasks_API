@@ -36,7 +36,7 @@ jobs:
       - name: Upload Unit Test results
         uses: actions/upload-artifact@master
         with:
-           name: Depcheck report
+           name: Unit test report
            path: ${{github.workspace}}/secure-tasks-api/target/surefire-reports
 
   dependency-scan:
