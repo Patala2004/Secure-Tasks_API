@@ -33,11 +33,13 @@ jobs:
         run: cd secure-tasks-api && mvn clean test
 
       - name: OWASP Dependency Check
-        uses: dependency-check/Dependency-Check_Action@main
+        uses: jeremylong/dependency-check-action@v2
         with:
           project: secure-tasks-api
-          scan: './secure-tasks-api'
-          failBuildOnCVSS: 7
+          path: './secure-tasks-api'
+          format: ALL
+          args:
+            --failOnCVSS 7
 
       # - name: Build Docker Image
       #   run: docker build -t secure-tasks-api .
