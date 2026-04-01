@@ -33,11 +33,11 @@ jobs:
         working-directory: secure-tasks-api
         run: mvn clean test
 
-      - name: Upload Unit Test Reports
-        uses: actions/upload-artifact@v3
+      - name: Upload Unit Test results
+        uses: actions/upload-artifact@master
         with:
-          name: Unit Test Results
-          path: secure-tasks-api/target/surefire-reports
+           name: Depcheck report
+           path: ${{github.workspace}}/secure-tasks-api/target/surefire-reports
 
   dependency-scan:
     runs-on: ubuntu-latest
@@ -57,8 +57,8 @@ jobs:
             --failOnCVSS 7
             --enableRetired
 
-      - name: Upload Dependency Check Report
-        uses: actions/upload-artifact@v3
+      - name: Upload Test results
+        uses: actions/upload-artifact@master
         with:
-          name: Depcheck Report
-          path: ${{github.workspace}}/reports
+           name: Depcheck report
+           path: ${{github.workspace}}/reports
