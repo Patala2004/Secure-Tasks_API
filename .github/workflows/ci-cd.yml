@@ -59,9 +59,9 @@ jobs:
           args: >
             --failOnCVSS 7
             --enableRetired
-        continue-on-error: true
 
       - name: Upload Test results
+        if: always()
         uses: actions/upload-artifact@master
         with:
            name: Depcheck report
