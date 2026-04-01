@@ -65,10 +65,7 @@ jobs:
       
       - name: Run OWASP Dependency-Check via Maven
         working-directory: ./secure-tasks-api
-        run: mvn verify org.owasp:dependency-check-maven:check \
-            -Dformat=ALL \
-            -DfailBuildOnCVSS=7 \
-            -DenableRetired=true
+        run: mvn org.owasp:dependency-check-maven:check -Dformat=ALL -DfailBuildOnCVSS=7 -DenableRetired=true
 
       # - name: OWASP Dependency Check
       #   uses: dependency-check/Dependency-Check_Action@main
