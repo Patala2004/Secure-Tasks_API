@@ -46,12 +46,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Show directory tree
+        run: |
+          pwd
+          ls -l
+          tree -L 3
+      
+      - name: List files recursively
+        run: find ./secure-tasks-api -name "pom.xml"
+
       - name: OWASP Dependency Check
         uses: dependency-check/Dependency-Check_Action@main
         id: Dpcheck
         with:
           project: 'secure-tasks-api'
-          path: 'secure-tasks-api'
+          path: './secure-tasks-api'
           format: ALL
           args: >
             --failOnCVSS 7
