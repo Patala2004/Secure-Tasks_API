@@ -54,20 +54,35 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
-
-      - name: OWASP Dependency Check
-        uses: dependency-check/Dependency-Check_Action@main
-        id: Dpcheck
-        env:
-          # actions/setup-java@v1 changes JAVA_HOME so it needs to be reset to match the depcheck image
-          JAVA_HOME: /opt/jdk
+      
+      - name: Cache Maven packages
+        uses: actions/cache@v3
         with:
-          project: 'secure-tasks-api'
-          path: './secure-tasks-api'
-          format: ALL
-          args: >
-            --failOnCVSS 7
-            --enableRetired
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      
+      - name: Run OWASP Dependency-Check via Maven
+        working-directory: ./secure-tasks-api
+        run: mvn verify org.owasp:dependency-check-maven:check \
+            -Dformat=ALL \
+            -DfailBuildOnCVSS=7 \
+            -DenableRetired=true
+
+      # - name: OWASP Dependency Check
+      #   uses: dependency-check/Dependency-Check_Action@main
+      #   id: Dpcheck
+      #   env:
+      #     # actions/setup-java@v1 changes JAVA_HOME so it needs to be reset to match the depcheck image
+      #     JAVA_HOME: /opt/jdk
+      #   with:
+      #     project: 'secure-tasks-api'
+      #     path: './secure-tasks-api'
+      #     format: ALL
+      #     args: >
+      #       --failOnCVSS 7
+      #       --enableRetired
 
       - name: Upload Test results
         if: always()
