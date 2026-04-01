@@ -29,8 +29,8 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      - name: Build && Run Tests
-        run: cd secure-tasks-api & mvn clean test
+      - name: Build & Run Tests
+        run: cd secure-tasks-api && mvn clean test
 
       - name: OWASP Dependency Check
         uses: dependency-check/Dependency-Check_Action@main
