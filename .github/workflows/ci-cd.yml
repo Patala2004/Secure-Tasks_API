@@ -1,0 +1,48 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    env:
+      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
+
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Start database service
+        run: docker compose -f docker-compose.yml up -d
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Build & Run Tests
+        run: mvn clean test
+
+      - name: OWASP Dependency Check
+        uses: owasp/dependency-check-action@v2
+        with:
+          project: secure-tasks-api
+          scan: .
+
+      # - name: Build Docker Image
+      #   run: docker build -t secure-tasks-api .
+
+      # # Optionally, scan the Docker image with Trivy
+      # - name: Scan Docker Image
+      #   uses: aquasecurity/trivy-action@master
+      #   with:
+      #     image-ref: secure-tasks-api
