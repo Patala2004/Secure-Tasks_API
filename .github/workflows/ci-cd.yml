@@ -42,7 +42,7 @@ jobs:
   dependency-scan:
     runs-on: ubuntu-latest
     env:
-      NIST_API_KEY: ${{ secrets.NIST_API_KEY }}
+      NVD_API_KEY: ${{ secrets.NIST_API_KEY }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
