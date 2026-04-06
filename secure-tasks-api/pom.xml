@@ -113,6 +113,9 @@
 						</goals>
 					</execution>
 				</executions>
+				<configuration>
+					<nvdApiKey>${env.NVD_API_KEY}</nvdApiKey>
+				</configuration>
         	</plugin>
 		</plugins>
 	</build>
