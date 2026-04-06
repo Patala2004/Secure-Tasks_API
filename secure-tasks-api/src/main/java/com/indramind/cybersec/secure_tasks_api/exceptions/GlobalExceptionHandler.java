@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -17,6 +18,16 @@ public class GlobalExceptionHandler {
                         "timestamp", LocalDateTime.now(),
                         "error", ex.getMessage()
                 )
+        );
+    }
+
+    @ExceptionHandler(EmailInUseException.class)
+    public ResponseEntity<?> handleEmailInUse(EmailInUseException ex){
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(
+            Map.of(
+                        "timestamp", LocalDateTime.now(),
+                        "error", ex.getMessage()
+            )
         );
     }
 

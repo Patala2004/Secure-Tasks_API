@@ -11,13 +11,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserDTO {
-
-    @NotBlank
-    private String username;
+public class LoginRequest {
 
     @Email
     private String email;
 
-    private Long id;
+	@NotBlank
+	private String password;
 }

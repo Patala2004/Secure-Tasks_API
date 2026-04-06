@@ -1,11 +1,13 @@
 package com.indramind.cybersec.secure_tasks_api.service.impl;
 
-import com.indramind.cybersec.secure_tasks_api.dto.UserDTO;
-import com.indramind.cybersec.secure_tasks_api.entity.User;
+import com.indramind.cybersec.secure_tasks_api.dto.UserPassDTO;
+import com.indramind.cybersec.secure_tasks_api.entity.AppUser;
 import com.indramind.cybersec.secure_tasks_api.exceptions.ResourceNotFoundException;
 import com.indramind.cybersec.secure_tasks_api.repository.UserRepository;
 import com.indramind.cybersec.secure_tasks_api.service.UserService;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,30 +17,32 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository repository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
-    public User create(UserDTO request) {
-        User user = User.builder()
-                .username(request.getName())
+    public AppUser create(UserPassDTO request) {
+        AppUser user = AppUser.builder()
+                .username(request.getUsername())
                 .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword())) // Hash password before storing
                 .build();
         return repository.save(user);
     }
 
     @Override
-    public List<User> getAll() {
+    public List<AppUser> getAll() {
         return repository.findAll();
     }
 
     @Override
-    public User getById(Long id) {
+    public AppUser getById(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
     @Override
     public void delete(Long id) {
-        User user = getById(id);
+        AppUser user = getById(id);
         repository.delete(user);
     }
 }

@@ -1,7 +1,8 @@
 package com.indramind.cybersec.secure_tasks_api.controller;
 
 import com.indramind.cybersec.secure_tasks_api.dto.UserDTO;
-import com.indramind.cybersec.secure_tasks_api.entity.User;
+import com.indramind.cybersec.secure_tasks_api.dto.UserPassDTO;
+import com.indramind.cybersec.secure_tasks_api.entity.AppUser;
 import com.indramind.cybersec.secure_tasks_api.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,17 +18,17 @@ public class UserController {
     private final UserService service;
 
     @PostMapping
-    public User create(@Valid @RequestBody UserDTO request) {
+    public AppUser create(@Valid @RequestBody UserPassDTO request) {
         return service.create(request);
     }
 
     @GetMapping
-    public List<User> getAll() {
+    public List<AppUser> getAll() {
         return service.getAll();
     }
 
     @GetMapping("/{id}")
-    public User getById(@PathVariable Long id) {
+    public AppUser getById(@PathVariable Long id) {
         return service.getById(id);
     }
 

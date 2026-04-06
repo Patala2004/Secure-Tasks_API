@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserDTO {
+public class RegisterRequest {
 
     @NotBlank
     private String username;
@@ -19,5 +19,6 @@ public class UserDTO {
     @Email
     private String email;
 
-    private Long id;
+	@NotBlank
+	private String password;
 }
