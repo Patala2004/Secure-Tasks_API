@@ -93,11 +93,40 @@
 			<scope>runtime</scope>
 		</dependency>
 
+		<!-- Source: https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.44</version>
+			<scope>compile</scope>
+		</dependency>
+
+
 		
 	</dependencies>
 
 	<build>
 		<plugins>
+
+			<plugin> 
+				<groupId>org.codehaus.mojo</groupId> 
+				<artifactId>properties-maven-plugin</artifactId> 
+				<version>1.2.1</version> 
+				<executions> 
+					<execution> 
+						<phase>initialize</phase> 
+						<goals> 
+							<goal>read-project-properties</goal> 
+						</goals>
+						<configuration> 
+							<files> 
+								<file>${project.basedir}/.env</file> 
+							</files> 
+						</configuration> 
+					</execution> 
+				</executions> 
+			</plugin>
+		
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
