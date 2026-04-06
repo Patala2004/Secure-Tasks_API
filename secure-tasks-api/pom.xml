@@ -109,26 +109,6 @@
 		<plugins>
 
 			<plugin> 
-				<groupId>org.codehaus.mojo</groupId> 
-				<artifactId>properties-maven-plugin</artifactId> 
-				<version>1.3.0</version> 
-				<executions> 
-					<execution> 
-						<phase>initialize</phase> 
-						<goals> 
-							<goal>read-project-properties</goal> 
-						</goals>
-						<configuration> 
-							<files> 
-								<file>${project.basedir}/.env</file> 
-							</files> 
-							<failOnMissingFile>false</failOnMissingFile>
-						</configuration> 
-					</execution> 
-				</executions> 
-			</plugin>
-		
-			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
