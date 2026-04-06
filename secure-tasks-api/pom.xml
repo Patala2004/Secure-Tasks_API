@@ -122,6 +122,7 @@
 							<files> 
 								<file>${project.basedir}/.env</file> 
 							</files> 
+							<failOnMissingFile>false</failOnMissingFile>
 						</configuration> 
 					</execution> 
 				</executions> 
