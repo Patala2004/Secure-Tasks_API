@@ -16,6 +16,7 @@ jobs:
       POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
       POSTGRES_HOST: localhost
       POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
+      JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -90,4 +91,3 @@ jobs:
            name: Depcheck report
            path: ${{github.workspace}}/secure-tasks-api/target
 
-           
