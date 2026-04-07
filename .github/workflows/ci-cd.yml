@@ -131,9 +131,22 @@ jobs:
       - name: Deploy to server
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
+            # Start Postgres
+            docker run -d --name springboot-postgres \
+              -e POSTGRES_USER=${{ secrets.POSTGRES_USER }} \
+              -e POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
+              -e POSTGRES_DB=${{ secrets.POSTGRES_DB }} \
+              -p ${{ secrets.POSTGRES_PORT }}:5432 \
+              postgres:15
+
+            # Load Stpringboot image
             docker load -i ~/ciber/springboot-app-${{ github.sha }}.tar &&
+            
+            # Stop old container if it exists
             docker stop springboot-app || true &&
             docker rm springboot-app || true &&
+
+            # Start new container
             docker run -d --name springboot-app \
               -p 8951:8080 \
               -e POSTGRES_USER=${{ secrets.POSTGRES_USER }} \
