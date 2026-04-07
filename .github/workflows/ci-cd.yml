@@ -135,7 +135,7 @@ jobs:
             docker stop springboot-app || true &&
             docker rm springboot-app || true &&
             docker run -d --name springboot-app \
-              -p 8080:8080 \
+              -p 8951:8080 \
               -e POSTGRES_USER=${{ secrets.POSTGRES_USER }} \
               -e POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
               -e POSTGRES_DB=${{ secrets.POSTGRES_DB }} \
