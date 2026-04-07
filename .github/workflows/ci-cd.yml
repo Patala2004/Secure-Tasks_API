@@ -120,7 +120,7 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_KEY }}
       
       - name: List structure
-        run: ls . && ls ./secure-tasks-api
+        run: ls .
 
       - name: Build Docker image
         working-directory: ./secure-tasks-api
