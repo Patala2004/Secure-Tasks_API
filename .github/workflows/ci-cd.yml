@@ -141,7 +141,7 @@ jobs:
               -e POSTGRES_DB=${{ secrets.POSTGRES_DB }} \
               -e POSTGRES_HOST=localhost \
               -e POSTGRES_PORT=${{ secrets.POSTGRES_PORT }} \
-              -e JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }} \
+              -e JWT_SECRET_KEY=\"${{ secrets.JWT_SECRET_KEY }}\" \
               springboot-app:${{ github.sha }} &&
             rm ~/ciber/springboot-app-${{ github.sha }}.tar &&
             docker image prune -f
