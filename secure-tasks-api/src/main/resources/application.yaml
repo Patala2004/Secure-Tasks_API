@@ -17,3 +17,6 @@ spring:
     show-sql: true
   secrets:
     jwt.secretkey: ${JWT_SECRET_KEY}
+
+sonar.java.coveragePlugin: jacoco
+sonar.coverage.jacoco.xmlReportPaths: target/site/jacoco/jacoco.xml

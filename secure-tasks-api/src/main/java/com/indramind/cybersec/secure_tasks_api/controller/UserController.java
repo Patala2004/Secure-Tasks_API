@@ -17,11 +17,6 @@ public class UserController {
 
     private final UserService service;
 
-    @PostMapping
-    public AppUser create(@Valid @RequestBody UserPassDTO request) {
-        return service.create(request);
-    }
-
     @GetMapping
     public List<AppUser> getAll() {
         return service.getAll();

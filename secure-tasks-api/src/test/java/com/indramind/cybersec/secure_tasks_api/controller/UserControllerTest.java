@@ -1,87 +1,126 @@
 package com.indramind.cybersec.secure_tasks_api.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+// import com.indramind.cybersec.secure_tasks_api.config.TestSecurityConfig;
+import com.indramind.cybersec.secure_tasks_api.dto.UserPassDTO;
+import com.indramind.cybersec.secure_tasks_api.entity.AppUser;
+import com.indramind.cybersec.secure_tasks_api.repository.UserRepository;
+import com.indramind.cybersec.secure_tasks_api.security.JwtAuthenticationFilter;
+import com.indramind.cybersec.secure_tasks_api.security.JwtService;
+import com.indramind.cybersec.secure_tasks_api.security.UserDetailsImpl;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.mockito.BDDMockito.given;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.test.web.servlet.MockMvc;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.http.MediaType;
 
-import com.indramind.cybersec.secure_tasks_api.dto.UserDTO;
-import com.indramind.cybersec.secure_tasks_api.dto.UserPassDTO;
-import com.indramind.cybersec.secure_tasks_api.entity.AppUser;
-import com.indramind.cybersec.secure_tasks_api.security.JwtService;
-import com.indramind.cybersec.secure_tasks_api.security.UserDetailsServiceImpl;
-import com.indramind.cybersec.secure_tasks_api.service.UserService;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
-import java.util.List;
-
-@WebMvcTest(UserController.class)
+@AutoConfigureMockMvc
+@SpringBootTest()
 class UserControllerTest {
 
-    @Autowired 
+    @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private UserRepository userRepository;
+
+	@MockitoBean
+	private JwtService jwtService;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
-
-    @MockitoBean
-    private UserService userService;
-
-    @MockitoBean
-    private JwtService jwtService;
-
-    @MockitoBean
-    private UserDetailsServiceImpl userDetailsService;
-
-    private List<AppUser> users;
-    private String rawToken;
-    private AppUser testUserEntity;
-    private UserDTO testUserDto;
-
+	
     @BeforeEach
-    void setup() {
-        rawToken = "Bearer faketoken";
+    void setUp() {
+        userRepository.deleteAll(); // Clean DB before each test
 
-        testUserEntity = new AppUser(1L, "Alice", "alice@test.com", "hashedpassword");
-        testUserDto = new UserDTO("Alice", "alice@test.com", 1L);
+		// Mock JwtService to always validate any token
+		when(jwtService.isTokenValid(anyString(), any())).thenReturn(true);
 
-        given(jwtService.isTokenValid(rawToken)).willReturn(true);
-        given(jwtService.extractEmail(rawToken)).willReturn(testUserEntity.getEmail());
+		// Mock JwtService to always extract a fixed username
+		when(jwtService.extractEmail(anyString())).thenReturn("testuser@example.com");
     }
 
     @Test
-    void shouldReturnAllUsers() throws Exception{
-        users = List.of(
-            new AppUser(1L, "Alicia", "alicia@minsait.com", "passwd"), 
-            new AppUser(1L, "Salomon", "salomon@minsait.com", "passwd")
-        );
-        
-        given(userService.getAll()).willReturn(users);
+    void testCreateUser() throws Exception {
+        UserPassDTO request = new UserPassDTO();
+        request.setUsername("testuser");
+        request.setPassword("password123");
+        request.setEmail("testuser@example.com");
 
-        mockMvc.perform(get("/api/users")
-                .header("Authorization", "Bearer " + rawToken)
-                .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(content().json(objectMapper.writeValueAsString(users)));
+		when(jwtService.generateAccessToken(any())).thenReturn("MockJWTTocken");
+
+        String requestJson = objectMapper.writeValueAsString(request);
+
+        mockMvc.perform(post("/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+				.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").value("MockJWTTocken"));
+
+        // Verify saved in DB
+        AppUser savedUser = userRepository.findByUsername("testuser").orElse(null);
+        assertThat(savedUser).isNotNull();
+        assertThat(savedUser.getEmail()).isEqualTo("testuser@example.com");
     }
 
     @Test
-    void shouldCreateuser() throws Exception{
-        UserPassDTO dto = new UserPassDTO("Arturo", "passwd", "arturo@hotmail.com");
-        AppUser user = new AppUser(3L, "Arturo", "passwd", "arturo@hotmail.com");
-        given(userService.create(dto)).willReturn(user);
+    void testGetAllUsers() throws Exception {
+        AppUser user = new AppUser();
+        user.setUsername("user1");
+        user.setPassword("password123");
+        user.setEmail("testuser@example.com");
+        userRepository.save(user);
 
-        mockMvc.perform(post("/api/users")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto)))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.username").value("Arturo"));
+        mockMvc.perform(get("/api/users").header("Authorization", "Bearer dummy-token"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].username").value("user1"));
+    }
+
+    @Test
+    void testGetUserById() throws Exception {
+        AppUser user = new AppUser();
+        user.setUsername("user2");
+        user.setPassword("password123");
+        user.setEmail("testuser@example.com");
+        AppUser savedUser = userRepository.save(user);
+
+        mockMvc.perform(get("/api/users/{id}", savedUser.getId()).header("Authorization", "Bearer dummy-token"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username").value("user2"));
+    }
+
+    @Test
+    void testDeleteUser() throws Exception {
+        AppUser user = new AppUser();
+        user.setUsername("user3");
+        user.setPassword("password123");
+        user.setEmail("testuser@example.com");
+        AppUser savedUser = userRepository.save(user);
+
+		
+
+        mockMvc.perform(delete("/api/users/{id}", savedUser.getId()).header("Authorization", "Bearer dummy-token"))
+                .andExpect(status().isOk());
+				
+
+        assertThat(userRepository.findById(savedUser.getId())).isEmpty();
     }
 }
