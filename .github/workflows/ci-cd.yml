@@ -131,12 +131,16 @@ jobs:
       - name: Deploy to server
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
+
+            # Create network
+            docker network create springboot-network || true
+
             # Start Postgres
             docker run -d --name springboot-postgres \
               -e POSTGRES_USER=${{ secrets.POSTGRES_USER }} \
               -e POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
               -e POSTGRES_DB=${{ secrets.POSTGRES_DB }} \
-              -p ${{ secrets.POSTGRES_PORT }}:5432 \
+              --network springboot-network \
               postgres:15
 
             # Load Stpringboot image
@@ -146,15 +150,21 @@ jobs:
             docker stop springboot-app || true &&
             docker rm springboot-app || true &&
 
+            # Wait for postgres
+            until docker exec springboot-postgres pg_isready; do
+              sleep 1
+            done
+
             # Start new container
             docker run -d --name springboot-app \
               -p 8951:8080 \
               -e POSTGRES_USER=${{ secrets.POSTGRES_USER }} \
               -e POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
               -e POSTGRES_DB=${{ secrets.POSTGRES_DB }} \
-              -e POSTGRES_HOST=host.docker.internal \
-              -e POSTGRES_PORT=${{ secrets.POSTGRES_PORT }} \
+              -e POSTGRES_HOST=springboot-postgres \
+              -e POSTGRES_PORT=5432 \
               -e JWT_SECRET_KEY=\"${{ secrets.JWT_SECRET_KEY }}\" \
+              --network springboot-network \
               springboot-app:${{ github.sha }} &&
             rm ~/ciber/springboot-app-${{ github.sha }}.tar &&
             docker image prune -f
