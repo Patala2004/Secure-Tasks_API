@@ -135,7 +135,14 @@ jobs:
         working-directory: ./secure-tasks-api
         run: |
           echo "==== CURR DIR TREE ===="
-          ls -R
+          ls
+
+          echo " ==== TARGET ==== "
+          ls ./target
+
+          echo "=== SONAR ==== "
+
+          
           mvn clean sonar:sonar -DskipTests \
             "-Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}" \
             "-Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}" \
