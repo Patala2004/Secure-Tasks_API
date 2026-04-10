@@ -34,6 +34,15 @@ jobs:
         working-directory: secure-tasks-api
         run: mvn clean test
 
+      - name: Upload build + coverage report
+        uses: actions/upload-artifact@master
+        with:
+          name: build-artifacts
+          path: |
+            secure-tasks-api/target/classes
+            secure-tasks-api/target/test-classes
+            secure-tasks-api/target/site/jacoco/jacoco.xml
+
       - name: Upload Unit Test results
         uses: actions/upload-artifact@master
         with:
@@ -94,37 +103,32 @@ jobs:
 
   sonarQube:
     runs-on: ubuntu-latest
-    env:
-      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-      POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-      POSTGRES_HOST: localhost
-      POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
-      JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+    needs: [unit-tests]
     steps:
       - uses: actions/checkout@v4
         with:
           # Disabling shallow clone is recommended for improving relevancy of reporting.
           fetch-depth: 0
-      
-      - name: Start database service
-        run: docker compose -f docker-compose.yml up -d
-      
+
+
       - name: Set up JDK 21
         uses: actions/setup-java@v3
         with:
           distribution: temurin
           java-version: 21
+      
+      - name: Download coverage report
+        uses: actions/download-artifact@master
+        with:
+          name: build-artifacts
 
       - name: SonarQube Scan
         working-directory: ./secure-tasks-api
         run: |
-          mvn clean verify sonar:sonar \
+          mvn clean sonar:sonar -DskipTests \
             "-Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}" \
             "-Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}" \
             "-Dsonar.token=${{ secrets.SONAR_TOKEN }}"
-        env:
-          NVD_API_KEY: ${{ secrets.NIST_API_KEY }}
 
       - name: SonarQube Quality Gate check
         id: sonarqube-quality-gate-check
