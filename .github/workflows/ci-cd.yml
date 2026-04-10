@@ -144,7 +144,8 @@ jobs:
             "-Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}" \
             "-Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}" \
             "-Dsonar.token=${{ secrets.SONAR_TOKEN }}" \
-            "-Dsonar.java.binaries=target/classes"
+            "-Dsonar.java.binaries=${{ github.workspace }}/secure-tasks-api/target/classes" \
+            "-Dsonar.coverage.jacoco.xmlReportPaths=${{ github.workspace }}/secure-tasks-api/target/site/jacoco/jacoco.xml"
 
       - name: SonarQube Quality Gate check
         id: sonarqube-quality-gate-check
