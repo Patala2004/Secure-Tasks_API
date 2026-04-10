@@ -99,6 +99,12 @@ jobs:
         with:
           # Disabling shallow clone is recommended for improving relevancy of reporting.
           fetch-depth: 0
+      
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 21
 
       - name: SonarQube Scan
         working-directory: ./secure-tasks-api
