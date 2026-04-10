@@ -131,15 +131,10 @@ jobs:
           echo "FULL TREE:"
           ls -R
 
-          echo "TARGET CHECK:"
-          ls -R target || true
-
-          echo "SECURE-TASKS-API CHECK:"
-          ls -R secure-tasks-api || true
-
       - name: SonarQube Scan
         working-directory: ./secure-tasks-api
         run: |
+          ls -R target
           mvn clean sonar:sonar -DskipTests \
             "-Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}" \
             "-Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}" \
