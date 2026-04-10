@@ -94,11 +94,21 @@ jobs:
 
   sonarQube:
     runs-on: ubuntu-latest
+    env:
+      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
+      JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
     steps:
       - uses: actions/checkout@v4
         with:
           # Disabling shallow clone is recommended for improving relevancy of reporting.
           fetch-depth: 0
+      
+      - name: Start database service
+        run: docker compose -f docker-compose.yml up -d
       
       - name: Set up JDK 21
         uses: actions/setup-java@v3
