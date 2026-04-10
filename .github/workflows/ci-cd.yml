@@ -122,6 +122,20 @@ jobs:
         with:
           name: build-artifacts
           path: secure-tasks-api
+      
+      - name: Debug file structure
+        run: |
+          echo "CURRENT DIR:"
+          pwd
+
+          echo "FULL TREE:"
+          ls -R
+
+          echo "TARGET CHECK:"
+          ls -R target || true
+
+          echo "SECURE-TASKS-API CHECK:"
+          ls -R secure-tasks-api || true
 
       - name: SonarQube Scan
         working-directory: ./secure-tasks-api
