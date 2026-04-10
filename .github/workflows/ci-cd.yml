@@ -121,7 +121,7 @@ jobs:
         uses: actions/download-artifact@master
         with:
           name: build-artifacts
-          path: secure-tasks-api
+          path: secure-tasks-api/target
       
       - name: Debug file structure
         run: |
