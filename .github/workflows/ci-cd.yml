@@ -101,6 +101,7 @@ jobs:
           fetch-depth: 0
 
       - name: SonarQube Scan
+        working-directory: ./secure-tasks-api
         run: |
           mvn clean verify sonar:sonar \
             "-Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}" \
