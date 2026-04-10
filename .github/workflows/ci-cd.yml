@@ -107,7 +107,7 @@ jobs:
             "-Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}" \
             "-Dsonar.token=${{ secrets.SONAR_TOKEN }}"
         env:
-          NVD_API_KEY: ${{ secrets.NIST_API_KEY }
+          NVD_API_KEY: ${{ secrets.NIST_API_KEY }}
 
       - name: SonarQube Quality Gate check
         id: sonarqube-quality-gate-check
