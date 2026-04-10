@@ -1,22 +1,17 @@
 package com.indramind.cybersec.secure_tasks_api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-// import com.indramind.cybersec.secure_tasks_api.config.TestSecurityConfig;
 import com.indramind.cybersec.secure_tasks_api.dto.UserPassDTO;
 import com.indramind.cybersec.secure_tasks_api.entity.AppUser;
 import com.indramind.cybersec.secure_tasks_api.repository.UserRepository;
-import com.indramind.cybersec.secure_tasks_api.security.JwtAuthenticationFilter;
 import com.indramind.cybersec.secure_tasks_api.security.JwtService;
-import com.indramind.cybersec.secure_tasks_api.security.UserDetailsImpl;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;

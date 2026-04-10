@@ -147,6 +147,7 @@
 				</executions>
 				<configuration>
 					<nvdApiKey>${env.NVD_API_KEY}</nvdApiKey>
+					<format>ALL</format>
 				</configuration>
         	</plugin>
 

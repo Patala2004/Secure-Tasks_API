@@ -1,10 +1,7 @@
 package com.indramind.cybersec.secure_tasks_api.controller;
 
-import com.indramind.cybersec.secure_tasks_api.dto.UserDTO;
-import com.indramind.cybersec.secure_tasks_api.dto.UserPassDTO;
 import com.indramind.cybersec.secure_tasks_api.entity.AppUser;
 import com.indramind.cybersec.secure_tasks_api.service.UserService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

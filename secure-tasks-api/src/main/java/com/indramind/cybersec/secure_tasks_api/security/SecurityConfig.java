@@ -2,13 +2,12 @@ package com.indramind.cybersec.secure_tasks_api.security;
 
 import lombok.RequiredArgsConstructor;
 
-import java.util.List;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,11 +21,12 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtFilter;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    @SuppressWarnings("java:S4502") // Stateless JWT-based API, no session cookies => CSRF not applicable
+    public SecurityFilterChain securityFilterChain(HttpSecurity http){
         http
-            .csrf(csrf -> csrf.disable()) // Because we use stateless jwt and dont have session cookies
+            .csrf(AbstractHttpConfigurer::disable) // csrf -> csrf.diable Because we use stateless jwt and dont have session cookies
 			.formLogin(form -> form.disable()) // disable default /login page
-			.httpBasic(httpBasic -> httpBasic.disable())
+			.httpBasic(AbstractHttpConfigurer::disable) // httpBasic -> httpBasic.disable()
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/**").permitAll()
                 .anyRequest().authenticated()
@@ -45,7 +45,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config){
         return config.getAuthenticationManager();
     }
 }

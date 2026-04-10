@@ -7,8 +7,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Service;
 
-import com.indramind.cybersec.secure_tasks_api.entity.AppUser;
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -50,7 +48,7 @@ public class JwtService{
 
 	public boolean isTokenValid(String token, UserDetails userDetails) {
 		String email = extractEmail(token);
-		return email != null && email != "" && email.equals(userDetails.getUsername()) && isTokenValid(token);
+		return email != null && !email.equals("") && email.equals(userDetails.getUsername()) && isTokenValid(token);
 	}
 
 	public String extractEmail(String token) {

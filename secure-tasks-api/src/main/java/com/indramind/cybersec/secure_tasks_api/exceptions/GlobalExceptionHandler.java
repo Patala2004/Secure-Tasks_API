@@ -6,35 +6,28 @@ import org.springframework.web.bind.annotation.*;
 
 
 import java.time.LocalDateTime;
-import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<?> handleNotFound(ResourceNotFoundException ex) {
+    public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                Map.of(
-                        "timestamp", LocalDateTime.now(),
-                        "error", ex.getMessage()
-                )
+                new ErrorResponse(LocalDateTime.now(), ex.getMessage())
         );
     }
 
     @ExceptionHandler(EmailInUseException.class)
-    public ResponseEntity<?> handleEmailInUse(EmailInUseException ex){
+    public ResponseEntity<ErrorResponse> handleEmailInUse(EmailInUseException ex){
         return ResponseEntity.status(HttpStatus.CONFLICT).body(
-            Map.of(
-                        "timestamp", LocalDateTime.now(),
-                        "error", ex.getMessage()
-            )
+            new ErrorResponse(LocalDateTime.now(), ex.getMessage())
         );
     }
 
 	@ExceptionHandler(Exception.class)
-    public ResponseEntity<?> handleGeneric(Exception ex) {
+    public ResponseEntity<ErrorResponse> handleGeneric(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                Map.of("error", "Internal server error")
+                new ErrorResponse(LocalDateTime.now(), "Internal server error")
         );
     }
 }

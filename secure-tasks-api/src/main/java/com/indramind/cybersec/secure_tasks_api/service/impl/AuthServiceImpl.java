@@ -65,10 +65,8 @@ public class AuthServiceImpl implements AuthService{
 	public AppUser getCurrentUser(String token){
 		String email = jwtService.extractEmail(token);
 
-		AppUser user = userRepository.findByEmail(email)
+		return userRepository.findByEmail(email)
 			.orElseThrow(() -> new ResourceNotFoundException("User for this token doesn't exist"));
-		
-		return user;
 	}
 	
 }

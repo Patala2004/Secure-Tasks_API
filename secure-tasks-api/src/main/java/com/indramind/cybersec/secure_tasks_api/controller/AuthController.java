@@ -32,13 +32,8 @@ public class AuthController {
 
     @PostMapping("/logout")
     public void logout(@RequestHeader("Authorization") String token) {
-        // authService.logout(token); // Invalidate tokens 
+        throw new UnsupportedOperationException();
     }
-
-    // @PostMapping("/refresh")
-    // public AuthResponse refresh(@RequestHeader("Authorization") String refreshToken) {
-    //     return authService.refreshToken(refreshToken);
-    // }
 
     @GetMapping("/me")
     public UserDTO me(@RequestHeader("Authorization") String token) {

@@ -6,7 +6,6 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +13,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.MediaType;
 
-import com.indramind.cybersec.secure_tasks_api.dto.UserDTO;
-import com.indramind.cybersec.secure_tasks_api.dto.UserPassDTO;
 import com.indramind.cybersec.secure_tasks_api.entity.AppUser;
 import com.indramind.cybersec.secure_tasks_api.security.JwtService;
 import com.indramind.cybersec.secure_tasks_api.security.UserDetailsServiceImpl;
@@ -43,14 +40,12 @@ class UserControllerMvcTest {
     private List<AppUser> users;
     private String rawToken;
     private AppUser testUserEntity;
-    private UserDTO testUserDto;
 
     @BeforeEach
     void setup() {
         rawToken = "Bearer faketoken";
 
         testUserEntity = new AppUser(1L, "Alice", "alice@test.com", "hashedpassword");
-        testUserDto = new UserDTO("Alice", "alice@test.com", 1L);
 
         given(jwtService.isTokenValid(rawToken)).willReturn(true);
         given(jwtService.extractEmail(rawToken)).willReturn(testUserEntity.getEmail());
