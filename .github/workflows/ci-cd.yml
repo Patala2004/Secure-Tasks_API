@@ -134,7 +134,8 @@ jobs:
       - name: SonarQube Scan
         working-directory: ./secure-tasks-api
         run: |
-          ls -R target
+          echo "==== CURR DIR TREE ===="
+          ls -R
           mvn clean sonar:sonar -DskipTests \
             "-Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}" \
             "-Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}" \
