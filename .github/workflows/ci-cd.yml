@@ -142,8 +142,8 @@ jobs:
 
           echo "=== SONAR ==== "
 
-          
-          mvn clean sonar:sonar -DskipTests \
+
+          mvn sonar:sonar -DskipTests \
             "-Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}" \
             "-Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}" \
             "-Dsonar.token=${{ secrets.SONAR_TOKEN }}" \
