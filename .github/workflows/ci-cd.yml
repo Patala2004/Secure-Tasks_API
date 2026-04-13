@@ -79,19 +79,13 @@ jobs:
         working-directory: ./secure-tasks-api
         run: mvn org.owasp:dependency-check-maven:check -Dformat=ALL -DfailBuildOnCVSS=7 -DenableRetired=true
 
-      # - name: OWASP Dependency Check
-      #   uses: dependency-check/Dependency-Check_Action@main
-      #   id: Dpcheck
-      #   env:
-      #     # actions/setup-java@v1 changes JAVA_HOME so it needs to be reset to match the depcheck image
-      #     JAVA_HOME: /opt/jdk
-      #   with:
-      #     project: 'secure-tasks-api'
-      #     path: './secure-tasks-api'
-      #     format: ALL
-      #     args: >
-      #       --failOnCVSS 7
-      #       --enableRetired
+      - name: Upload build + coverage report
+        uses: actions/upload-artifact@master
+        with:
+          name: dpcheck-artifacts
+          path: |
+            secure-tasks-api/target/dependency-check-report.json
+            secure-tasks-api/target/dependency-check-report.html
 
       - name: Upload Test results
         if: always()
@@ -103,7 +97,7 @@ jobs:
 
   sonarQube:
     runs-on: ubuntu-latest
-    needs: [unit-tests]
+    needs: [unit-tests, dependency-scan]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -120,6 +114,12 @@ jobs:
         uses: actions/download-artifact@master
         with:
           name: build-artifacts
+          path: secure-tasks-api/target
+      
+      - name: Download dependency check report
+        uses: actions/download-artifact@master
+        with:
+          name: dpcheck-artifacts
           path: secure-tasks-api/target
 
       - name: SonarQube Scan
