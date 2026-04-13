@@ -21,7 +21,7 @@ public class ProjectMapper {
 
 	public Project toEntity(ProjectDTO dto, AppUser owner){
 		if(dto == null) return null;
-
+		if(owner == null) throw new IllegalArgumentException();
 		Project project = new Project();
 		project.setId(dto.getId());
 		project.setName(dto.getName());

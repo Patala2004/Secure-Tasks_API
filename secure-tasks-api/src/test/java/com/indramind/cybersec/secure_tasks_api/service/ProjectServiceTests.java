@@ -4,6 +4,7 @@ import com.indramind.cybersec.secure_tasks_api.dto.ProjectDTO;
 import com.indramind.cybersec.secure_tasks_api.dto.UserDTO;
 import com.indramind.cybersec.secure_tasks_api.entity.AppUser;
 import com.indramind.cybersec.secure_tasks_api.entity.Project;
+import com.indramind.cybersec.secure_tasks_api.exceptions.CollaboratorNotFound;
 import com.indramind.cybersec.secure_tasks_api.exceptions.ResourceNotFoundException;
 import com.indramind.cybersec.secure_tasks_api.mapper.ProjectMapper;
 import com.indramind.cybersec.secure_tasks_api.mapper.UserMapper;
@@ -222,6 +223,48 @@ class ProjectServiceTest {
         assertNotNull(result);
         assertTrue(project.getCollaborators().contains(user));
         verify(repository).save(project);
+    }
+
+    @Test
+    void removeCollaborator_shouldRemoveAndSave() {
+        Long projectId = 1L;
+        Long userId = 2L;
+
+        AppUser user = new AppUser();
+        user.setId(userId);
+
+        Project project = new Project();
+        project.setCollaborators(new HashSet<>(Set.of(user)));
+
+        UserDTO dto = new UserDTO();
+
+        when(repository.findById(projectId)).thenReturn(Optional.of(project));
+        when(userService.getById(userId)).thenReturn(user);
+        when(userMapper.toDto(user)).thenReturn(dto);
+
+        UserDTO result = projectService.removeCollaborator(projectId, userId);
+
+        assertNotNull(result);
+        assertTrue(!project.getCollaborators().contains(user));
+        verify(repository).save(project);
+    }
+
+    @Test
+    void removeCollaborator_shouldThrow_whenCollaboratorNotFound() {
+        Long projectId = 1L;
+        Long userId = 2L;
+
+        AppUser user = new AppUser();
+        user.setId(userId);
+
+        Project project = new Project();
+        project.setCollaborators(new HashSet<>());
+
+        when(repository.findById(projectId)).thenReturn(Optional.of(project));
+        when(userService.getById(userId)).thenReturn(user);
+
+        assertThrows(CollaboratorNotFound.class,
+                () -> projectService.removeCollaborator(projectId, userId));
     }
 
     @Test

@@ -2,8 +2,6 @@ package com.indramind.cybersec.secure_tasks_api.service.impl;
 
 import com.indramind.cybersec.secure_tasks_api.mapper.ProjectMapper;
 import com.indramind.cybersec.secure_tasks_api.mapper.UserMapper;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
