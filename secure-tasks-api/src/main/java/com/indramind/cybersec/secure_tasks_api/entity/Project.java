@@ -6,6 +6,7 @@ import java.util.Set;
 import org.hibernate.validator.constraints.*;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 @Entity
@@ -31,14 +32,12 @@ public class Project {
 	@Builder.Default
 	private Set<AppUser> collaborators = new HashSet<>();
 
+	@NotNull
+	@NotBlank
 	@Length(min=5, max=50)
 	private String name;
 
 	public void addCollaborator(AppUser user) {
-		if (collaborators == null) {
-			collaborators = new HashSet<>();
-		}
-
 		if (!collaborators.contains(user)) {
 			collaborators.add(user);
 		}

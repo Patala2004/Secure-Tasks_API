@@ -199,4 +199,77 @@ class ProjectServiceTest {
         assertEquals(1, result.size());
         verify(repository).findById(projectId);
     }
+
+    @Test
+    void addCollaborator_shouldAddAndSave() {
+        Long projectId = 1L;
+        Long userId = 2L;
+
+        AppUser user = new AppUser();
+        user.setId(userId);
+
+        Project project = new Project();
+        project.setCollaborators(new HashSet<>());
+
+        UserDTO dto = new UserDTO();
+
+        when(repository.findById(projectId)).thenReturn(Optional.of(project));
+        when(userService.getById(userId)).thenReturn(user);
+        when(userMapper.toDto(user)).thenReturn(dto);
+
+        UserDTO result = projectService.addCollaborator(projectId, userId);
+
+        assertNotNull(result);
+        assertTrue(project.getCollaborators().contains(user));
+        verify(repository).save(project);
+    }
+
+    @Test
+    void update_shouldThrow_whenProjectNotFound() {
+        when(repository.findById(1L)).thenReturn(Optional.empty());
+
+        ProjectDTO dto = new ProjectDTO();
+        dto.setName("New Name");
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> projectService.update(dto, 1L));
+    }
+
+    @Test
+    void delete_shouldThrow_whenProjectNotFound() {
+        when(repository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> projectService.delete(1L));
+
+        verify(repository, never()).delete(any());
+    }
+
+    @Test
+    void getCollaborators_shouldThrow_whenProjectNotFound() {
+        when(repository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> projectService.getCollaborators(1L));
+    }
+
+    @Test
+    void addCollaborator_shouldThrow_whenAlreadyExists() {
+        Long projectId = 1L;
+        Long userId = 2L;
+
+        AppUser user = new AppUser();
+        user.setId(userId);
+
+        Project project = new Project();
+        project.setCollaborators(new HashSet<>(Set.of(user)));
+
+        when(repository.findById(projectId)).thenReturn(Optional.of(project));
+        when(userService.getById(userId)).thenReturn(user);
+
+        assertThrows(RuntimeException.class,
+                () -> projectService.addCollaborator(projectId, userId));
+
+        verify(repository, never()).save(any());
+    }
 }

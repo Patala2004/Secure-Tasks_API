@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 import com.indramind.cybersec.secure_tasks_api.dto.ProjectDTO;
 import com.indramind.cybersec.secure_tasks_api.dto.UserDTO;
@@ -20,9 +21,11 @@ import com.indramind.cybersec.secure_tasks_api.repository.ProjectRepository;
 import com.indramind.cybersec.secure_tasks_api.service.ProjectService;
 import com.indramind.cybersec.secure_tasks_api.service.UserService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Service
+@Validated
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ProjectServiceImpl implements ProjectService{
@@ -39,18 +42,17 @@ public class ProjectServiceImpl implements ProjectService{
 	}
 
 	@Transactional
-	public ProjectDTO create(ProjectDTO dto, Long ownerId){
+	public ProjectDTO create(@Valid ProjectDTO dto, Long ownerId){
 		Project project = new Project();
 		project.setOwner(
 			userService.getById(ownerId)
 		);
 		project.setName(dto.getName());
-		project.setCollaborators(new HashSet<AppUser>());
 		return mapper.toDto(repository.save(project));
 	}
 
 	@Transactional
-	public ProjectDTO update(ProjectDTO dto, Long id){
+	public ProjectDTO update(@Valid ProjectDTO dto, Long id){
 		Project project = repository.findById(id)
 			.orElseThrow(() -> new ResourceNotFoundException("Project not found"));
 		String newName = dto.getName();
@@ -59,11 +61,11 @@ public class ProjectServiceImpl implements ProjectService{
 	}
 
 	public List<ProjectDTO> getAllFromOwner(Long userId){
-		return repository.findByOwnerId(userId).stream().map(project -> mapper.toDto(project)).toList();
+		return repository.findByOwnerId(userId).stream().map(mapper::toDto).toList();
 	}
 
 	public List<ProjectDTO> getAllFromUser(Long userId){
-		return repository.findAllProjectsForUser(userId).stream().map(project -> mapper.toDto(project)).toList();
+		return repository.findAllProjectsForUser(userId).stream().map(mapper::toDto).toList();
 	}
 
 	@Transactional

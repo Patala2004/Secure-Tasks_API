@@ -19,14 +19,3 @@ public interface ProjectService {
 
 	Project getById(Long id);
 }
-
-
-
-
-// public interface UserService {
-//     AppUser create(UserPassDTO request);
-//     List<AppUser> getAll();
-//     AppUser getById(Long id);
-//     void delete(Long id);
-//     AppUser update(UserDTO user, Long id);
-// }
