@@ -38,14 +38,10 @@ public class Project {
 	private String name;
 
 	public void addCollaborator(AppUser user) {
-		if (!collaborators.contains(user)) {
-			collaborators.add(user);
-		}
+		collaborators.add(user);
 	}
 
 	public void removeCollaborator(AppUser user) {
-		if (collaborators != null) {
-			collaborators.remove(user);
-		}
+		collaborators.remove(user);
 	}
 }
