@@ -3,6 +3,7 @@ package com.indramind.cybersec.secure_tasks_api.service.impl;
 import com.indramind.cybersec.secure_tasks_api.dto.UserDTO;
 import com.indramind.cybersec.secure_tasks_api.dto.UserPassDTO;
 import com.indramind.cybersec.secure_tasks_api.entity.AppUser;
+import com.indramind.cybersec.secure_tasks_api.exceptions.EmailInUseException;
 import com.indramind.cybersec.secure_tasks_api.exceptions.ResourceNotFoundException;
 import com.indramind.cybersec.secure_tasks_api.repository.UserRepository;
 import com.indramind.cybersec.secure_tasks_api.service.UserService;
@@ -22,6 +23,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public AppUser create(UserPassDTO request) {
+        if (repository.existsByEmail(request.getEmail())){
+            throw new EmailInUseException("Email already in use");
+        }
         AppUser user = AppUser.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())
@@ -52,6 +56,9 @@ public class UserServiceImpl implements UserService {
         AppUser user = getById(id);
         String newUsername = dto.getUsername();
         String newEmail = dto.getEmail();
+        if(!newEmail.equals(user.getEmail()) && repository.existsByEmail(newEmail)){
+            throw new EmailInUseException("Email already in use");
+        }
         if(newUsername != null && !newUsername.isBlank()) user.setUsername(newUsername);
         if(newEmail != null && !newEmail.isBlank()) user.setEmail(newEmail);
         return repository.save(user);

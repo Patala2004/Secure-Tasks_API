@@ -3,6 +3,7 @@ package com.indramind.cybersec.secure_tasks_api.service;
 import com.indramind.cybersec.secure_tasks_api.dto.UserDTO;
 import com.indramind.cybersec.secure_tasks_api.dto.UserPassDTO;
 import com.indramind.cybersec.secure_tasks_api.entity.AppUser;
+import com.indramind.cybersec.secure_tasks_api.exceptions.EmailInUseException;
 import com.indramind.cybersec.secure_tasks_api.exceptions.ResourceNotFoundException;
 import com.indramind.cybersec.secure_tasks_api.repository.UserRepository;
 import com.indramind.cybersec.secure_tasks_api.service.impl.UserServiceImpl;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -199,5 +201,40 @@ class UserServiceTest {
 
         assertThrows(ResourceNotFoundException.class,
                 () -> userService.update(dto, 1L));
+    }
+
+	    @Test
+    void create_shouldThrow_whenRepeatedEmail() {
+        UserPassDTO request = new UserPassDTO();
+        request.setUsername("testuser");
+        request.setEmail("test@email.com");
+        request.setPassword("plainPassword");
+
+		UserPassDTO request2 = new UserPassDTO();
+        request2.setUsername("testuser2");
+        request2.setEmail("test@email.com");
+        request2.setPassword("plainPassword");
+
+        when(passwordEncoder.encode("plainPassword")).thenReturn("encodedPassword");
+
+        AppUser savedUser = AppUser.builder()
+                .username("testuser")
+                .email("test@email.com")
+                .password("encodedPassword")
+                .build();
+
+        when(repository.save(any(AppUser.class))).thenReturn(savedUser);
+
+        AppUser result = userService.create(request);
+
+        assertEquals("testuser", result.getUsername());
+        assertEquals("encodedPassword", result.getPassword());
+
+        verify(passwordEncoder).encode("plainPassword");
+        verify(repository).save(any(AppUser.class));
+
+		assertThrows(EmailInUseException.class,
+			() -> userService.create(request2)
+		);
     }
 }
