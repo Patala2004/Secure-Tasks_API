@@ -4,6 +4,7 @@ import com.indramind.cybersec.secure_tasks_api.dto.ProjectDTO;
 import com.indramind.cybersec.secure_tasks_api.dto.UserDTO;
 import com.indramind.cybersec.secure_tasks_api.entity.AppUser;
 import com.indramind.cybersec.secure_tasks_api.entity.Project;
+import com.indramind.cybersec.secure_tasks_api.exceptions.CollaboratorAlreadyExistsException;
 import com.indramind.cybersec.secure_tasks_api.exceptions.CollaboratorNotFound;
 import com.indramind.cybersec.secure_tasks_api.exceptions.ResourceNotFoundException;
 import com.indramind.cybersec.secure_tasks_api.mapper.ProjectMapper;
@@ -122,6 +123,27 @@ class ProjectServiceTest {
 
         ProjectDTO input = new ProjectDTO();
         input.setName("   "); // blank
+
+        when(repository.findById(projectId)).thenReturn(Optional.of(project));
+        when(repository.save(project)).thenReturn(project);
+        when(projectMapper.toDto(project)).thenReturn(new ProjectDTO());
+
+        projectService.update(input, projectId);
+
+        assertEquals("Old Name", project.getName());
+        verify(repository).save(project);
+    }
+
+    @Test
+    void update_shouldIgnoreNullName() {
+        Long projectId = 1L;
+
+        Project project = new Project();
+        project.setId(projectId);
+        project.setName("Old Name");
+
+        ProjectDTO input = new ProjectDTO();
+        input.setName(null); // blank
 
         when(repository.findById(projectId)).thenReturn(Optional.of(project));
         when(repository.save(project)).thenReturn(project);
@@ -310,7 +332,7 @@ class ProjectServiceTest {
         when(repository.findById(projectId)).thenReturn(Optional.of(project));
         when(userService.getById(userId)).thenReturn(user);
 
-        assertThrows(RuntimeException.class,
+        assertThrows(CollaboratorAlreadyExistsException.class,
                 () -> projectService.addCollaborator(projectId, userId));
 
         verify(repository, never()).save(any());

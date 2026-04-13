@@ -2,14 +2,11 @@ package com.indramind.cybersec.secure_tasks_api.mapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
-import com.indramind.cybersec.secure_tasks_api.dto.ProjectDTO;
 import com.indramind.cybersec.secure_tasks_api.dto.UserDTO;
 import com.indramind.cybersec.secure_tasks_api.entity.AppUser;
-import com.indramind.cybersec.secure_tasks_api.entity.Project;
 
 class UserMapperTest {
 
