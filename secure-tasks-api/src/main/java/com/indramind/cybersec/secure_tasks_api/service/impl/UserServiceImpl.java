@@ -1,5 +1,6 @@
 package com.indramind.cybersec.secure_tasks_api.service.impl;
 
+import com.indramind.cybersec.secure_tasks_api.dto.UserDTO;
 import com.indramind.cybersec.secure_tasks_api.dto.UserPassDTO;
 import com.indramind.cybersec.secure_tasks_api.entity.AppUser;
 import com.indramind.cybersec.secure_tasks_api.exceptions.ResourceNotFoundException;
@@ -44,5 +45,15 @@ public class UserServiceImpl implements UserService {
     public void delete(Long id) {
         AppUser user = getById(id);
         repository.delete(user);
+    }
+
+    @Override
+    public AppUser update(UserDTO dto, Long id){
+        AppUser user = getById(id);
+        String newUsername = dto.getUsername();
+        String newEmail = dto.getEmail();
+        if(newUsername != null && !newUsername.isBlank()) user.setUsername(newUsername);
+        if(newEmail != null && !newEmail.isBlank()) user.setEmail(newEmail);
+        return repository.save(user);
     }
 }

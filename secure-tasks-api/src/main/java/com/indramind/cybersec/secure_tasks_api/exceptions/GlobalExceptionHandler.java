@@ -24,6 +24,20 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(CollaboratorAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleCollaboratorAlreadyExists(CollaboratorAlreadyExistsException ex){
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(
+                new ErrorResponse(LocalDateTime.now(), ex.getMessage())
+        );
+    }
+
+    @ExceptionHandler(CollaboratorNotFound.class)
+    public ResponseEntity<ErrorResponse> handleCollaboratorAlreadyExists(CollaboratorNotFound ex){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                new ErrorResponse(LocalDateTime.now(), ex.getMessage())
+        );
+    }
+
 	@ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneric(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(

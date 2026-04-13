@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.MediaType;
 
 import com.indramind.cybersec.secure_tasks_api.entity.AppUser;
+import com.indramind.cybersec.secure_tasks_api.mapper.UserMapper;
 import com.indramind.cybersec.secure_tasks_api.security.JwtService;
 import com.indramind.cybersec.secure_tasks_api.security.UserDetailsServiceImpl;
 import com.indramind.cybersec.secure_tasks_api.service.UserService;
@@ -33,6 +34,9 @@ class UserControllerMvcTest {
 
     @MockitoBean
     private JwtService jwtService;
+
+    @MockitoBean 
+    private UserMapper userMapper;
 
     @MockitoBean
     private UserDetailsServiceImpl userDetailsService;
