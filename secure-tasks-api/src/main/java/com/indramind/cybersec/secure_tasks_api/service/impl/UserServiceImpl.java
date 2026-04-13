@@ -56,7 +56,7 @@ public class UserServiceImpl implements UserService {
         AppUser user = getById(id);
         String newUsername = dto.getUsername();
         String newEmail = dto.getEmail();
-        if(!newEmail.equals(user.getEmail()) && repository.existsByEmail(newEmail)){
+        if(!user.getEmail().equals(newEmail) && repository.existsByEmail(newEmail)){
             throw new EmailInUseException("Email already in use");
         }
         if(newUsername != null && !newUsername.isBlank()) user.setUsername(newUsername);

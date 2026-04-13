@@ -205,6 +205,11 @@ class UserServiceTest {
 
 	    @Test
     void create_shouldThrow_whenRepeatedEmail() {
+
+		when(repository.existsByEmail("test@email.com"))
+			.thenReturn(false) // first call
+			.thenReturn(true); // second call
+			
         UserPassDTO request = new UserPassDTO();
         request.setUsername("testuser");
         request.setEmail("test@email.com");
