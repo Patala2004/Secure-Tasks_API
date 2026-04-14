@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.indramind.cybersec.secure_tasks_api.dto.UserDTO;
 import com.indramind.cybersec.secure_tasks_api.dto.UserPassDTO;
 import com.indramind.cybersec.secure_tasks_api.entity.AppUser;
-import com.indramind.cybersec.secure_tasks_api.exceptions.EmailInUseException;
 import com.indramind.cybersec.secure_tasks_api.repository.UserRepository;
 import com.indramind.cybersec.secure_tasks_api.security.JwtService;
 
@@ -17,7 +16,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
