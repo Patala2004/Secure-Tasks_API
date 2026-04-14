@@ -21,8 +21,8 @@ class JwtServiceTest {
     private JwtService jwtService;
     private UserDetails user;
 
-    private final static String SECRET = "my-super-secret-key-my-super-secret-key";
-    private final static long EXPIRATION = 1000 * 60; // 1 minute
+    private static final String SECRET = "my-super-secret-key-my-super-secret-key";
+    private static final long EXPIRATION = 1000 * 60; // 1 minute
 
     @BeforeEach
     void setup() {
@@ -112,7 +112,7 @@ class JwtServiceTest {
     }
 
     @Test
-    void token_shouldExpire() throws InterruptedException {
+    void token_shouldExpire() {
         Date now = new Date();
         Date expiry = new Date(now.getTime() - 1000); // Create expired token
 
