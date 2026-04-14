@@ -1,7 +1,8 @@
 package com.indramind.cybersec.secure_tasks_api.dto;
 
+import org.hibernate.validator.constraints.Length;
+
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class UserDTO {
 
-    @NotBlank
+    @Length(min = 5, max = 30)
     private String username;
 
     @Email

@@ -37,7 +37,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public UserDTO update(@PathVariable Long id, @Valid UserDTO dto){
+    public UserDTO update(@PathVariable Long id, @RequestBody @Valid UserDTO dto){
         return mapper.toDto(service.update(dto, id));
     }
 }

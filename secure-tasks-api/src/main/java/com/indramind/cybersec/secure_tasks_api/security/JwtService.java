@@ -4,11 +4,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import javax.crypto.SecretKey;
@@ -41,7 +41,7 @@ public class JwtService{
 		try {
 			Jwts.parserBuilder().setSigningKey(signingKey).build().parseClaimsJws(token);
 			return true;
-		} catch (JwtException e) {
+		} catch (JwtException  e) {
 			return false;
 		}
 	}
