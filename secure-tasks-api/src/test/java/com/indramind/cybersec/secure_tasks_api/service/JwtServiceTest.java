@@ -7,6 +7,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.indramind.cybersec.secure_tasks_api.security.JwtService;
 
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,8 +21,8 @@ class JwtServiceTest {
     private JwtService jwtService;
     private UserDetails user;
 
-    private final String SECRET = "my-super-secret-key-my-super-secret-key";
-    private final long EXPIRATION = 1000 * 60; // 1 minute
+    private final static String SECRET = "my-super-secret-key-my-super-secret-key";
+    private final static long EXPIRATION = 1000 * 60; // 1 minute
 
     @BeforeEach
     void setup() {
@@ -108,13 +113,16 @@ class JwtServiceTest {
 
     @Test
     void token_shouldExpire() throws InterruptedException {
-        // very short expiration
-        JwtService shortLivedService = new JwtService(SECRET, 1);
+        Date now = new Date();
+        Date expiry = new Date(now.getTime() - 1000); // Create expired token
 
-        String token = shortLivedService.generateAccessToken(user);
+		String token =  Jwts.builder().setSubject(user.getUsername()) // Is really email
+		.setIssuedAt(now)
+		.setExpiration(expiry)
+		.signWith(Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8)), SignatureAlgorithm.HS256)
+		.compact();
 
-        Thread.sleep(5); // wait for expiration
 
-        assertFalse(shortLivedService.isTokenValid(token));
+        assertFalse(jwtService.isTokenValid(token));
     }
 }

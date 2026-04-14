@@ -187,11 +187,11 @@ class UserControllerTest {
 
         requestJson = objectMapper.writeValueAsString(request2);
 
-        assertThat(mockMvc.perform(post("/auth/register")
+        mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
 				.andDo(print())
-                .andExpect(status().isConflict()));
+                .andExpect(status().isConflict());
 
         // Verify NOT saved in DB
         savedUser = userRepository.findByUsername("testuser2").orElse(null);
@@ -339,7 +339,7 @@ class UserControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value("newUser"))
-                .andExpect(jsonPath("$.email").value("testuser@example.com"));;
+                .andExpect(jsonPath("$.email").value("testuser@example.com"));
 
         // 4. Verify DB update
         AppUser updatedUser = userRepository.findById(savedUser.getId()).orElse(null);
@@ -369,7 +369,7 @@ class UserControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value("testuser"))
-                .andExpect(jsonPath("$.email").value("testuser2@example.com"));;
+                .andExpect(jsonPath("$.email").value("testuser2@example.com"));
 
         // 4. Verify DB update
         AppUser updatedUser = userRepository.findById(savedUser.getId()).orElse(null);
