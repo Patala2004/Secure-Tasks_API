@@ -5,14 +5,24 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import java.time.LocalDateTime;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex) {
+
+        log.warn("Resource not found: message={}, correlationId={}",
+            ex.getMessage(),
+            MDC.get("correlationId"));
+
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                 new ErrorResponse(LocalDateTime.now(), ex.getMessage())
         );
@@ -20,6 +30,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(EmailInUseException.class)
     public ResponseEntity<ErrorResponse> handleEmailInUse(EmailInUseException ex){
+
+        log.warn("Email already in use: message={}, correlationId={}",
+        ex.getMessage(),
+            MDC.get("correlationId"));
+
         return ResponseEntity.status(HttpStatus.CONFLICT).body(
             new ErrorResponse(LocalDateTime.now(), ex.getMessage())
         );
@@ -27,6 +42,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CollaboratorAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleCollaboratorAlreadyExists(CollaboratorAlreadyExistsException ex){
+
+        log.warn("Collaborator already exists: message={}, correlationId={}",
+            ex.getMessage(),
+            MDC.get("correlationId"));
+
         return ResponseEntity.status(HttpStatus.CONFLICT).body(
                 new ErrorResponse(LocalDateTime.now(), ex.getMessage())
         );
@@ -34,6 +54,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CollaboratorNotFound.class)
     public ResponseEntity<ErrorResponse> handleCollaboratorAlreadyExists(CollaboratorNotFound ex){
+
+        log.warn("Collaborator not found: message={}, correlationId={}",
+            ex.getMessage(),
+            MDC.get("correlationId"));
+
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                 new ErrorResponse(LocalDateTime.now(), ex.getMessage())
         );
@@ -49,6 +74,10 @@ public class GlobalExceptionHandler {
             .map(e -> "[" + e.getField() + "] " + e.getDefaultMessage())
             .reduce((a, b) -> a + " | " + b)
             .orElse("Validation error");
+        
+        log.warn("Validation failed: errors={}, correlationId={}",
+            errorMessage,
+            MDC.get("correlationId"));
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
             new ErrorResponse(LocalDateTime.now(), errorMessage)
@@ -57,6 +86,14 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneric(Exception ex) {
+
+        log.error("Unhandled exception: type={}, message={}, correlationId={}",
+            ex.getClass().getSimpleName(),
+            ex.getMessage(),
+            MDC.get("correlationId"),
+            ex);
+
+            
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 new ErrorResponse(LocalDateTime.now(), "Internal server error")
         );
