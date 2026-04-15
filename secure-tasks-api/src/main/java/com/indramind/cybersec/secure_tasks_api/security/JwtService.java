@@ -12,6 +12,10 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import javax.crypto.SecretKey;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 
 @Service
@@ -19,6 +23,8 @@ public class JwtService{
 
 	private final SecretKey signingKey;
 	private final long accessTokenExpirationMs;
+
+	private static final Logger log = LoggerFactory.getLogger(JwtService.class);
 
 	public JwtService(@Value("${spring.secrets.jwt.secretkey}") String secretKey,
 						@Value("${spring.secrets.jwt.expiration-ms:900000}") long accessTokenExpirationMs) {
@@ -38,12 +44,7 @@ public class JwtService{
 	}
 
 	public boolean isTokenValid(String token) {
-		try {
-			Jwts.parserBuilder().setSigningKey(signingKey).build().parseClaimsJws(token);
-			return true;
-		} catch (JwtException  e) {
-			return false;
-		}
+		return parseClaims(token) != null;
 	}
 
 	public boolean isTokenValid(String token, UserDetails userDetails) {
@@ -52,20 +53,31 @@ public class JwtService{
 	}
 
 	public String extractEmail(String token) {
-        try {
-            Claims claims = Jwts.parserBuilder().setSigningKey(signingKey).build().parseClaimsJws(token).getBody();
-            return claims.getSubject();
-        } catch (JwtException e) {
-            return null;
-        }
+        Claims claims = parseClaims(token);
+		return claims == null? null:claims.getSubject();
     }
 
     public Date extractExpiration(String token) {
-        try {
-            Claims claims = Jwts.parserBuilder().setSigningKey(signingKey).build().parseClaimsJws(token).getBody();
-            return claims.getExpiration();
-        } catch (JwtException e) {
-            return null;
-        }
+		Claims claims = parseClaims(token);
+		return claims == null? null:claims.getExpiration();
     }
+
+	public Claims parseClaims(String token) {
+		try {
+			return Jwts.parserBuilder()
+            .setSigningKey(signingKey)
+            .build()
+            .parseClaimsJws(token)
+            .getBody();
+
+		} catch (io.jsonwebtoken.ExpiredJwtException e) {
+			log.warn("JWT expired: correlationId={}", MDC.get("correlationId"));
+		} catch (io.jsonwebtoken.security.SignatureException e) {
+			log.warn("JWT signature invalid (possible tampering): correlationId={}", MDC.get("correlationId"));
+		} catch (JwtException e) {
+			log.warn("JWT invalid: error: {}, correlationId={}", e.getClass().getSimpleName(), MDC.get("correlationId"));
+		}
+		
+		return null;
+	}
 }

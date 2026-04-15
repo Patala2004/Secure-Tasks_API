@@ -2,6 +2,9 @@ package com.indramind.cybersec.secure_tasks_api.security;
 
 import lombok.RequiredArgsConstructor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,6 +23,8 @@ import jakarta.servlet.http.HttpServletResponse;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
+
     private final JwtAuthenticationFilter jwtFilter;
 
     @Bean
@@ -37,9 +42,23 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             .exceptionHandling(ex -> ex
-                .authenticationEntryPoint((request, response, authException) -> 
-                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED)
-                )
+                .authenticationEntryPoint((request, response, authException) -> {
+                    log.warn("Authentication failed: method={}, uri={}, ip={}, errorType={}, correlationId={}",
+                        request.getMethod(),
+                        request.getRequestURI(),
+                        request.getRemoteAddr(),
+                        authException.getClass().getSimpleName(),
+                        MDC.get("correlationId"));
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                })
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    log.warn("Access denied: method={}, uri={}, ip={}, correlationId={}",
+                        request.getMethod(),
+                        request.getRequestURI(),
+                        request.getRemoteAddr(),
+                        MDC.get("correlationId"));
+                    response.sendError(HttpServletResponse.SC_FORBIDDEN);
+                })
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 

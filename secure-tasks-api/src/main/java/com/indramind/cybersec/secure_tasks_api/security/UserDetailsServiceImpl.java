@@ -22,4 +22,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         // You can assign authorities (roles) here if you have a Role entity
         return new UserDetailsImpl(user, null);
     }
+
+    public UserDetails getFromUser(AppUser user) {
+        return new UserDetailsImpl(user, null);
+    }
 }

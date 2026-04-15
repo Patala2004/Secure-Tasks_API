@@ -1,8 +1,6 @@
 package com.indramind.cybersec.secure_tasks_api.dto;
 
-import org.hibernate.validator.constraints.Length;
-
-import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,7 +12,11 @@ import lombok.NoArgsConstructor;
 @Builder
 public class UserDTO {
 
-    @Length(min = 5, max = 30)
+    @Size(min=5, max=30, message = "Username must be 5-30 characters long")
+    @Pattern(
+        regexp = "^[a-zA-Z0-9._-]{5,30}$",
+        message = "Username may contain only letters, numbers, dots (.), underscores (_) and hyphens (-)"
+    )
     private String username;
 
     @Email
