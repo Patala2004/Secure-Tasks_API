@@ -400,4 +400,19 @@ class UserControllerTest {
                         .header("Authorization", "Bearer invalid-token"))
                 .andExpect(status().isUnauthorized());
     }
+
+    @Test
+    void test_authenticatedUserDoesNotExist() throws Exception {
+        AppUser user = new AppUser();
+        user.setUsername("user2");
+        user.setPassword("password123");
+        user.setEmail("othermail@example.com");
+        AppUser savedUser = userRepository.save(user);
+
+        mockMvc.perform(get("/api/users/{id}", savedUser.getId()).header("Authorization", "Bearer dummy-token"))
+                .andExpect(status().isUnauthorized());
+        
+                mockMvc.perform(get("/api/users/{id}", savedUser.getId()).header("Authorization", "dummy-token"))
+                .andExpect(status().isUnauthorized());
+    }
 }

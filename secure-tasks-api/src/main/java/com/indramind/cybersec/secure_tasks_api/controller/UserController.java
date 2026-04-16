@@ -6,6 +6,7 @@ import com.indramind.cybersec.secure_tasks_api.mapper.UserMapper;
 import com.indramind.cybersec.secure_tasks_api.service.UserService;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.validation.annotation.Validated;
@@ -16,7 +17,7 @@ import java.util.List;
 
 @RestController
 @Validated
-@RequestMapping("/api/users")
+@RequestMapping(value = "/api/users", produces = "application/json")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -30,17 +31,17 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public AppUser getById(@PathVariable Long id) {
+    public AppUser getById(@PathVariable @Min(1) Long id) {
         return service.getById(id);
     }
 
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    @DeleteMapping(value = "/{id}")
+    public void delete(@PathVariable @Min(1) Long id) {
         service.delete(id);
     }
 
-    @PutMapping("/{id}")
-    public UserDTO update(@PathVariable Long id, @RequestBody @Valid UserDTO dto){
+    @PutMapping(value = "/{id}", consumes = "application/json")
+    public UserDTO update(@PathVariable @Min(1) Long id, @RequestBody @Valid UserDTO dto){
         return mapper.toDto(service.update(dto, id));
     }
 }

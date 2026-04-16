@@ -37,7 +37,7 @@ public class AuthServiceImpl implements AuthService{
 	private static final Logger log = LoggerFactory.getLogger(AuthServiceImpl.class);
 	
 	public String register(RegisterRequest dto){
-		log.info("Register attempt: email={}, correlationId={}", dto.getEmail(), MDC.get(CorrelationIdFilter.CORRELATION_KEY));
+		if (log.isInfoEnabled()) log.info("Register attempt: email={}, correlationId={}", dto.getEmail(), MDC.get(CorrelationIdFilter.CORRELATION_KEY));
 
 		// Check if mail already exists
 		if(userRepository.findByEmail(dto.getEmail()).isPresent()){
@@ -62,7 +62,7 @@ public class AuthServiceImpl implements AuthService{
 
 	public String login(String email, String rawPassword){
 
-		log.info("Login attempt: email={}, correlationId={}", email, MDC.get(CorrelationIdFilter.CORRELATION_KEY));
+		if (log.isInfoEnabled()) log.info("Login attempt: email={}, correlationId={}", email, MDC.get(CorrelationIdFilter.CORRELATION_KEY));
 
 		Authentication authentication = authenticationManager.authenticate(
 			new UsernamePasswordAuthenticationToken(email, rawPassword)
@@ -71,7 +71,7 @@ public class AuthServiceImpl implements AuthService{
 
 		UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-		log.info("Login success: email={}, correlationId={}", email, MDC.get(CorrelationIdFilter.CORRELATION_KEY));
+		if (log.isInfoEnabled()) log.info("Login success: email={}, correlationId={}", email, MDC.get(CorrelationIdFilter.CORRELATION_KEY));
 
 		// Generate JWT token
 		return jwtService.generateAccessToken(userDetails);

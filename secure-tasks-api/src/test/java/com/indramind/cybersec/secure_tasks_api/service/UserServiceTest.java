@@ -141,12 +141,6 @@ class UserServiceTest {
         when(repository.findById(userId)).thenReturn(Optional.of(user));
         when(repository.save(user)).thenReturn(updated);
         when(repository.existsById(userId)).thenReturn(true);
-        
-        // UserDetailsImpl userDetail = new UserDetailsImpl(user, null);
-        // Authentication auth =
-        //         new UsernamePasswordAuthenticationToken(userDetail, null, userDetail.getAuthorities());
-
-        // SecurityContextHolder.getContext().setAuthentication(auth);
 
         AppUser result = userService.update(dto, userId);
 

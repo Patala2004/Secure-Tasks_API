@@ -11,7 +11,7 @@ import com.indramind.cybersec.secure_tasks_api.dto.RegisterRequest;
 import com.indramind.cybersec.secure_tasks_api.dto.UserDTO;
 import com.indramind.cybersec.secure_tasks_api.mapper.UserMapper;
 import com.indramind.cybersec.secure_tasks_api.security.CorrelationIdFilter;
-import com.indramind.cybersec.secure_tasks_api.service.impl.AuthServiceImpl;
+import com.indramind.cybersec.secure_tasks_api.service.AuthService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -19,37 +19,37 @@ import lombok.*;
 
 @RestController
 @Validated
-@RequestMapping("/auth")
+@RequestMapping(value = "/auth", produces = "application/json")
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthServiceImpl authService;
+    private final AuthService authService;
 
 	private final UserMapper userMapper;
 
     private static final Logger log = LoggerFactory.getLogger(AuthController.class);
 
-    @PostMapping("/register")
+    @PostMapping(value = "/register", consumes = "application/json")
     public String register(HttpServletRequest request, @RequestBody @Valid RegisterRequest body) {
-        log.info("Register attempt: email={}, ip={}, correlationId={}", body.getEmail(), request.getRemoteAddr(), MDC.get(CorrelationIdFilter.CORRELATION_KEY));
+        if (log.isInfoEnabled()) log.info("Register attempt: email={}, ip={}, correlationId={}", body.getEmail(), request.getRemoteAddr(), MDC.get(CorrelationIdFilter.CORRELATION_KEY));
         return authService.register(body);
     }
 
-    @PostMapping("/login")
+    @PostMapping(value = "/login", consumes = "application/json")
     public String login(HttpServletRequest request, @RequestBody @Valid LoginRequest body) {
-        log.info("Login attempt: email={}, ip={}, correlationId={}", body.getEmail(), request.getRemoteAddr(), MDC.get(CorrelationIdFilter.CORRELATION_KEY));
+        if (log.isInfoEnabled()) log.info("Login attempt: email={}, ip={}, correlationId={}", body.getEmail(), request.getRemoteAddr(), MDC.get(CorrelationIdFilter.CORRELATION_KEY));
         return authService.login(body.getEmail(), body.getPassword());
     }
 
-    @PostMapping("/logout")
+    @PostMapping(value = "/logout", consumes = "application/json")
     public void logout(HttpServletRequest request, @RequestHeader("Authorization") String token) {
-        log.info("Logout attempt: ip={}, correlationId={}", request.getRemoteAddr(), MDC.get(CorrelationIdFilter.CORRELATION_KEY));
+        if (log.isInfoEnabled()) log.info("Logout attempt: ip={}, correlationId={}", request.getRemoteAddr(), MDC.get(CorrelationIdFilter.CORRELATION_KEY));
         throw new UnsupportedOperationException();
     }
 
     @GetMapping("/me")
     public UserDTO me(HttpServletRequest request, @RequestHeader("Authorization") String token) {
-        log.info("Get current user attempt, ip={}, correlationId={}", request.getRemoteAddr(), MDC.get(CorrelationIdFilter.CORRELATION_KEY));
+        if (log.isInfoEnabled()) log.info("Get current user attempt, ip={}, correlationId={}", request.getRemoteAddr(), MDC.get(CorrelationIdFilter.CORRELATION_KEY));
         return userMapper.toDto(authService.getCurrentUser(token));
     }
 }

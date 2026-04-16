@@ -34,11 +34,12 @@ public class ProjectServiceImpl implements ProjectService{
 	private final ProjectRepository repository;
 	private final UserService userService;
 
+	private static final String NOT_FOUND_MESSAGE = "Project not found";
+
 	@PreAuthorize("@projectSecurity.canAccessProject(#id, authentication.principal.id)")
 	public Project getById(Long id){
-		Project proj = repository.findById(id)
-			.orElseThrow(() -> new ResourceNotFoundException("Project not found"));
-			return proj;
+		return repository.findById(id)
+			.orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND_MESSAGE));
 	}
 
 	@Transactional
@@ -55,7 +56,7 @@ public class ProjectServiceImpl implements ProjectService{
 	@PreAuthorize("@projectSecurity.canAccessProject(#id, authentication.principal.id)")
 	public ProjectDTO update(@Valid ProjectDTO dto, Long id){
 		Project project = repository.findById(id)
-			.orElseThrow(() -> new ResourceNotFoundException("Project not found"));
+			.orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND_MESSAGE));
 		
 		String newName = dto.getName();
 		if(newName != null && !newName.isBlank()) project.setName(newName);
@@ -74,7 +75,7 @@ public class ProjectServiceImpl implements ProjectService{
 	@PreAuthorize("@projectSecurity.canAccessProject(#id, authentication.principal.id)")
 	public void delete(Long id){
 		Project project = repository.findById(id)
-			.orElseThrow(() -> new ResourceNotFoundException("Project not found"));
+			.orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND_MESSAGE));
 
 		repository.delete(project);
 	}
@@ -82,7 +83,7 @@ public class ProjectServiceImpl implements ProjectService{
 	@PreAuthorize("@projectSecurity.canAccessProject(#id, authentication.principal.id)")
 	public List<UserDTO> getCollaborators(Long projectId){
 		Project project = repository.findById(projectId)
-			.orElseThrow(() -> new ResourceNotFoundException("Project not found"));
+			.orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND_MESSAGE));
 
 		return project.getCollaborators()
 			.stream().map(user -> userMapper.toDto(user)).toList();
@@ -92,7 +93,7 @@ public class ProjectServiceImpl implements ProjectService{
 	@PreAuthorize("@projectSecurity.canAccessProject(#id, authentication.principal.id)")
 	public UserDTO addCollaborator(Long projectId, Long userId){
 		Project project = repository.findById(projectId)
-			.orElseThrow(() -> new ResourceNotFoundException("Project not found"));
+			.orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND_MESSAGE));
 
 		AppUser user = userService.getById(userId);
 		if(project.getCollaborators().contains(user)){
@@ -107,7 +108,7 @@ public class ProjectServiceImpl implements ProjectService{
 	@PreAuthorize("@projectSecurity.canAccessProject(#id, authentication.principal.id)")
 	public UserDTO removeCollaborator(Long projectId, Long userId){
 		Project project = repository.findById(projectId)
-			.orElseThrow(() -> new ResourceNotFoundException("Project not found"));
+			.orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND_MESSAGE));
 
 		AppUser user = userService.getById(userId);
 		if(!project.getCollaborators().contains(user)){

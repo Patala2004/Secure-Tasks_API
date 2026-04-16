@@ -89,7 +89,7 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneric(Exception ex) {
 
-        log.error("Unhandled exception: type={}, message={}, correlationId={}",
+        if (log.isErrorEnabled()) log.error("Unhandled exception: type={}, message={}, correlationId={}",
             ex.getClass().getSimpleName(),
             ex.getMessage(),
             MDC.get(CorrelationIdFilter.CORRELATION_KEY),
