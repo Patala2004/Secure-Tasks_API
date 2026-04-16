@@ -7,12 +7,15 @@ import com.indramind.cybersec.secure_tasks_api.service.UserService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 
 @RestController
+@Validated
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UserController {

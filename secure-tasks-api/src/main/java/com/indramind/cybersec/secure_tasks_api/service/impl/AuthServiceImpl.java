@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import com.indramind.cybersec.secure_tasks_api.dto.RegisterRequest;
 import com.indramind.cybersec.secure_tasks_api.entity.AppUser;
@@ -23,6 +24,7 @@ import com.indramind.cybersec.secure_tasks_api.service.AuthService;
 import lombok.RequiredArgsConstructor;
 
 @Service
+@Validated
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService{
 

@@ -3,6 +3,7 @@ package com.indramind.cybersec.secure_tasks_api.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import com.indramind.cybersec.secure_tasks_api.dto.LoginRequest;
@@ -17,6 +18,7 @@ import jakarta.validation.Valid;
 import lombok.*;
 
 @RestController
+@Validated
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
