@@ -142,6 +142,32 @@ class AuthServiceTest {
     }
 
     @Test
+    void getCurrentUser_TokenWithBearer_shouldReturnUser() {
+        String token = "valid-token";
+        String email = "test@email.com";
+
+        AppUser user = new AppUser();
+        user.setEmail(email);
+
+        when(jwtService.extractEmail(token)).thenReturn(email);
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+
+        AppUser result = authService.getCurrentUser("Bearer " + token);
+
+        assertEquals(email, result.getEmail());
+    }
+
+    @Test
+    void getCurrentUser_withCurrentUserWithNullEmail_shouldThrowUserNotFound() {
+        String token = "valid-token";
+
+        when(jwtService.extractEmail(token)).thenReturn(null);
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> authService.getCurrentUser(token));
+    }
+
+    @Test
     void getCurrentUser_shouldThrow_whenUserNotFound() {
         String token = "valid-token";
         String email = "test@email.com";

@@ -55,13 +55,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        UserDetails userDetails = loadUser(username, request, filterChain, response);
+        UserDetails userDetails = loadUser(username, request);
         if (userDetails == null){
             filterChain.doFilter(request, response);
             return;
         }
 
-        if (!checkTokenValid(jwt, userDetails, request, filterChain, response)){
+        if (!checkTokenValid(jwt, userDetails, request)){
             filterChain.doFilter(request, response);
             return;
         }
@@ -82,11 +82,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     
-    private UserDetails loadUser(String username,
-                                HttpServletRequest request,
-                                FilterChain filterChain,
-                                HttpServletResponse response)
-            throws IOException, ServletException {
+    private UserDetails loadUser(String username, HttpServletRequest request){
 
         try {
             return userDetailsService.loadUserByUsername(username);
@@ -98,12 +94,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
     }
 
-    private boolean checkTokenValid(String jwt,
-                                UserDetails userDetails,
-                                HttpServletRequest request,
-                                FilterChain filterChain,
-                                HttpServletResponse response)
-            throws IOException, ServletException {
+    private boolean checkTokenValid(String jwt, UserDetails userDetails, HttpServletRequest request){
 
         if (!jwtService.isTokenValid(jwt, userDetails)) {
             if (log.isWarnEnabled()) {

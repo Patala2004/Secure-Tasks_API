@@ -3,6 +3,7 @@ package com.indramind.cybersec.secure_tasks_api.exceptions;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.*;
 
 import com.indramind.cybersec.secure_tasks_api.security.CorrelationIdFilter;
@@ -83,6 +84,20 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
             new ErrorResponse(LocalDateTime.now(), errorMessage)
+        );
+    }
+
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    public ResponseEntity<ErrorResponse> handleMissingHeader(MissingRequestHeaderException ex) {
+
+        if (log.isWarnEnabled()) log.warn(
+            "Missing request header: {} correlationId={}",
+            ex.getHeaderName(),
+            MDC.get(CorrelationIdFilter.CORRELATION_KEY)
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+            new ErrorResponse(LocalDateTime.now(), "Missing required header: " + ex.getHeaderName())
         );
     }
 

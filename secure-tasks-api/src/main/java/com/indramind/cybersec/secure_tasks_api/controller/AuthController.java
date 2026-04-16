@@ -41,7 +41,7 @@ public class AuthController {
         return authService.login(body.getEmail(), body.getPassword());
     }
 
-    @PostMapping(value = "/logout", consumes = "application/json")
+    @PostMapping(value = "/logout")
     public void logout(HttpServletRequest request, @RequestHeader("Authorization") String token) {
         if (log.isInfoEnabled()) log.info("Logout attempt: ip={}, correlationId={}", request.getRemoteAddr(), MDC.get(CorrelationIdFilter.CORRELATION_KEY));
         throw new UnsupportedOperationException();
