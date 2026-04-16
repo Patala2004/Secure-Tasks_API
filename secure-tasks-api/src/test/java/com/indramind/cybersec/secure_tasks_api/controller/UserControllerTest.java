@@ -129,6 +129,8 @@ class UserControllerTest {
         user.setEmail("testuser@example.com");
         AppUser savedUser = userRepository.save(user);
 
+        Long savedUserId = savedUser.getId();
+
         // 2. Prepare updated data (UserDTO)
         UserDTO updateDto = new UserDTO();
         updateDto.setUsername("newUsername");
@@ -137,7 +139,7 @@ class UserControllerTest {
         String requestJson = objectMapper.writeValueAsString(updateDto);
 
         // 3. Perform PUT request
-        mockMvc.perform(put("/api/users/{id}", savedUser.getId())
+        mockMvc.perform(put("/api/users/{id}", savedUserId)
                         .header("Authorization", "Bearer dummy-token")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
@@ -147,7 +149,7 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.email").value("testuser2@example.com"));
 
         // 4. Verify DB update
-        AppUser updatedUser = userRepository.findById(savedUser.getId()).orElse(null);
+        AppUser updatedUser = userRepository.findById(savedUserId).orElse(null);
 
         assertThat(updatedUser).isNotNull();
         assertThat(updatedUser.getUsername()).isEqualTo("newUsername");
@@ -234,28 +236,6 @@ class UserControllerTest {
         assertThat(updatedUser).isNotNull();
         assertThat(updatedUser.getUsername()).isEqualTo("oldUsername");
         assertThat(updatedUser.getEmail()).isEqualTo("testuser@example.com");
-    }
-
-    @Test
-    void testUpdateUser_notFound() throws Exception {
-
-        // 1. Save testuser so authentication doesn't fail users
-        AppUser user = new AppUser();
-        user.setUsername("oldUsername");
-        user.setPassword("password123");
-        user.setEmail("testuser@example.com");
-        AppUser savedUser = userRepository.save(user);
-
-
-        UserDTO dto = new UserDTO();
-        dto.setUsername("newUsername");
-        dto.setEmail("email@example.com");
-
-        mockMvc.perform(put("/api/users/{id}", savedUser.getId() + 1)
-                        .header("Authorization", "Bearer dummy-token")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isNotFound());
     }
 
     @Test

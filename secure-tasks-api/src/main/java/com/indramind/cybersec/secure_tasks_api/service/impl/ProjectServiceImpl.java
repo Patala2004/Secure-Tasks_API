@@ -4,10 +4,7 @@ import com.indramind.cybersec.secure_tasks_api.mapper.ProjectMapper;
 import com.indramind.cybersec.secure_tasks_api.mapper.UserMapper;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
-import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -20,7 +17,6 @@ import com.indramind.cybersec.secure_tasks_api.exceptions.CollaboratorAlreadyExi
 import com.indramind.cybersec.secure_tasks_api.exceptions.CollaboratorNotFound;
 import com.indramind.cybersec.secure_tasks_api.exceptions.ResourceNotFoundException;
 import com.indramind.cybersec.secure_tasks_api.repository.ProjectRepository;
-import com.indramind.cybersec.secure_tasks_api.security.CorrelationIdFilter;
 import com.indramind.cybersec.secure_tasks_api.service.ProjectService;
 import com.indramind.cybersec.secure_tasks_api.service.UserService;
 
@@ -38,19 +34,10 @@ public class ProjectServiceImpl implements ProjectService{
 	private final ProjectRepository repository;
 	private final UserService userService;
 
-	private static final Logger log = LoggerFactory.getLogger(ProjectServiceImpl.class);
-
-
-	public Project getById(Long id, Long currUserId){
+	@PreAuthorize("@projectSecurity.canAccessProject(#id, authentication.principal.id)")
+	public Project getById(Long id){
 		Project proj = repository.findById(id)
 			.orElseThrow(() -> new ResourceNotFoundException("Project not found"));
-		
-			AppUser currUser = userService.getById(currUserId);
-
-			if(currUser!=proj.getOwner() && !proj.getCollaborators().contains(currUser)){
-				if (log.isWarnEnabled()) log.warn("Unauthorized project getById: project id={}, user id={}, correlationId={}", id, currUserId, MDC.get(CorrelationIdFilter.CORRELATION_KEY));
-				throw new AccessDeniedException("Currently logged in user doesn't have access to this project");
-			}
 			return proj;
 	}
 
@@ -65,16 +52,10 @@ public class ProjectServiceImpl implements ProjectService{
 	}
 
 	@Transactional
-	public ProjectDTO update(@Valid ProjectDTO dto, Long id, Long currUserId){
+	@PreAuthorize("@projectSecurity.canAccessProject(#id, authentication.principal.id)")
+	public ProjectDTO update(@Valid ProjectDTO dto, Long id){
 		Project project = repository.findById(id)
 			.orElseThrow(() -> new ResourceNotFoundException("Project not found"));
-			
-		AppUser currUser = userService.getById(currUserId);
-
-		if(currUser.getId()!=project.getOwner().getId() && !project.getCollaborators().contains(currUser)){
-			if (log.isWarnEnabled()) log.warn("Unauthorized project update: project id={}, user id={}, correlationId={}", id, currUserId, MDC.get(CorrelationIdFilter.CORRELATION_KEY));
-			throw new AccessDeniedException("Currently logged in user doesn't have access to this project");
-		}
 		
 		String newName = dto.getName();
 		if(newName != null && !newName.isBlank()) project.setName(newName);
@@ -90,46 +71,28 @@ public class ProjectServiceImpl implements ProjectService{
 	}
 
 	@Transactional
-	public void delete(Long id, Long currUserId){
+	@PreAuthorize("@projectSecurity.canAccessProject(#id, authentication.principal.id)")
+	public void delete(Long id){
 		Project project = repository.findById(id)
 			.orElseThrow(() -> new ResourceNotFoundException("Project not found"));
-
-		AppUser currUser = userService.getById(currUserId);
-
-		if(currUser.getId()!=project.getOwner().getId() && !project.getCollaborators().contains(currUser)){
-			if (log.isWarnEnabled()) log.warn("Unauthorized project delete: project id={}, user id={}, correlationId={}", id, currUserId, MDC.get(CorrelationIdFilter.CORRELATION_KEY));
-			throw new AccessDeniedException("Currently logged in user doesn't have access to this project");
-		}
 
 		repository.delete(project);
 	}
 	
-	public List<UserDTO> getCollaborators(Long projectId, Long currUserId){
+	@PreAuthorize("@projectSecurity.canAccessProject(#id, authentication.principal.id)")
+	public List<UserDTO> getCollaborators(Long projectId){
 		Project project = repository.findById(projectId)
 			.orElseThrow(() -> new ResourceNotFoundException("Project not found"));
-
-		AppUser currUser = userService.getById(currUserId);
-
-		if(currUser.getId()!=project.getOwner().getId() && !project.getCollaborators().contains(currUser)){
-			if (log.isWarnEnabled()) log.warn("Unauthorized project getCollaborators: project id={}, user id={}, correlationId={}", projectId, currUserId, MDC.get(CorrelationIdFilter.CORRELATION_KEY));
-			throw new AccessDeniedException("Currently logged in user doesn't have access to this project");
-		}
 
 		return project.getCollaborators()
 			.stream().map(user -> userMapper.toDto(user)).toList();
 	}
 
 	@Transactional
-	public UserDTO addCollaborator(Long projectId, Long userId, Long currUserId){
+	@PreAuthorize("@projectSecurity.canAccessProject(#id, authentication.principal.id)")
+	public UserDTO addCollaborator(Long projectId, Long userId){
 		Project project = repository.findById(projectId)
 			.orElseThrow(() -> new ResourceNotFoundException("Project not found"));
-
-		AppUser currUser = userService.getById(currUserId);
-
-		if(currUser.getId()!=project.getOwner().getId() && !project.getCollaborators().contains(currUser)){
-			if (log.isWarnEnabled()) log.warn("Unauthorized project addCollaborators: project id={}, user id={}, correlationId={}", projectId, currUserId, MDC.get(CorrelationIdFilter.CORRELATION_KEY));
-			throw new AccessDeniedException("Currently logged in user doesn't have access to this project");
-		}
 
 		AppUser user = userService.getById(userId);
 		if(project.getCollaborators().contains(user)){
@@ -141,16 +104,10 @@ public class ProjectServiceImpl implements ProjectService{
 	}
 
 	@Transactional
-	public UserDTO removeCollaborator(Long projectId, Long userId, Long currUserId){
+	@PreAuthorize("@projectSecurity.canAccessProject(#id, authentication.principal.id)")
+	public UserDTO removeCollaborator(Long projectId, Long userId){
 		Project project = repository.findById(projectId)
 			.orElseThrow(() -> new ResourceNotFoundException("Project not found"));
-
-		AppUser currUser = userService.getById(currUserId);
-
-		if(currUser.getId()!=project.getOwner().getId() && !project.getCollaborators().contains(currUser)){
-			if (log.isWarnEnabled()) log.warn("Unauthorized project removeCollaborator: project id={}, user id={}, correlationId={}", projectId, currUserId, MDC.get(CorrelationIdFilter.CORRELATION_KEY));
-			throw new AccessDeniedException("Currently logged in user doesn't have access to this project");
-		}
 
 		AppUser user = userService.getById(userId);
 		if(!project.getCollaborators().contains(user)){

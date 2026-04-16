@@ -8,14 +8,14 @@ import java.util.List;
 
 public interface ProjectService {
 	ProjectDTO create(ProjectDTO project, Long creatorId);
-	ProjectDTO update(ProjectDTO project, Long id, Long currUserId);
+	ProjectDTO update(ProjectDTO project, Long id);
 	List<ProjectDTO> getAllFromOwner(Long userId);
 	List<ProjectDTO> getAllFromUser(Long userId);
-	void delete(Long id, Long currUserId);
+	void delete(Long id);
 
-	List<UserDTO> getCollaborators(Long projectId, Long currUserId);
-	UserDTO addCollaborator(Long projectId, Long userId, Long currUserId);
-	UserDTO removeCollaborator(Long projectId, Long userId, Long currUserId);
+	List<UserDTO> getCollaborators(Long projectId);
+	UserDTO addCollaborator(Long projectId, Long userId);
+	UserDTO removeCollaborator(Long projectId, Long userId);
 
-	Project getById(Long id, Long currUserId);
+	Project getById(Long id);
 }

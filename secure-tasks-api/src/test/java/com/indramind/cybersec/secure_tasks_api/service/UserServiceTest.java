@@ -6,13 +6,18 @@ import com.indramind.cybersec.secure_tasks_api.entity.AppUser;
 import com.indramind.cybersec.secure_tasks_api.exceptions.EmailInUseException;
 import com.indramind.cybersec.secure_tasks_api.exceptions.ResourceNotFoundException;
 import com.indramind.cybersec.secure_tasks_api.repository.UserRepository;
+import com.indramind.cybersec.secure_tasks_api.security.UserDetailsImpl;
 import com.indramind.cybersec.secure_tasks_api.service.impl.UserServiceImpl;
+
+import org.springframework.security.core.Authentication;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
@@ -135,6 +140,13 @@ class UserServiceTest {
 
         when(repository.findById(userId)).thenReturn(Optional.of(user));
         when(repository.save(user)).thenReturn(updated);
+        when(repository.existsById(userId)).thenReturn(true);
+        
+        // UserDetailsImpl userDetail = new UserDetailsImpl(user, null);
+        // Authentication auth =
+        //         new UsernamePasswordAuthenticationToken(userDetail, null, userDetail.getAuthorities());
+
+        // SecurityContextHolder.getContext().setAuthentication(auth);
 
         AppUser result = userService.update(dto, userId);
 
@@ -159,6 +171,12 @@ class UserServiceTest {
 
         when(repository.findById(userId)).thenReturn(Optional.of(user));
         when(repository.save(user)).thenReturn(user);
+        when(repository.existsById(userId)).thenReturn(true);
+
+        UserDetailsImpl userDetail = new UserDetailsImpl(user, null);
+        Authentication auth =
+                new UsernamePasswordAuthenticationToken(userDetail, null, userDetail.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
         userService.update(dto, userId);
 
@@ -183,6 +201,11 @@ class UserServiceTest {
 
         when(repository.findById(userId)).thenReturn(Optional.of(user));
         when(repository.save(user)).thenReturn(user);
+        when(repository.existsById(userId)).thenReturn(true);
+        UserDetailsImpl userDetail = new UserDetailsImpl(user, null);
+        Authentication auth =
+                new UsernamePasswordAuthenticationToken(userDetail, null, userDetail.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
         userService.update(dto, userId);
 
@@ -195,6 +218,15 @@ class UserServiceTest {
     @Test
     void update_shouldThrow_whenUserNotFound() {
         when(repository.findById(1L)).thenReturn(Optional.empty());
+        when(repository.existsById(1L)).thenReturn(true);
+
+        AppUser user = new AppUser();
+        user.setId(1L);
+
+        UserDetailsImpl userDetail = new UserDetailsImpl(user, null);
+        Authentication auth =
+                new UsernamePasswordAuthenticationToken(userDetail, null, userDetail.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
         UserDTO dto = new UserDTO();
         dto.setUsername("newUser");

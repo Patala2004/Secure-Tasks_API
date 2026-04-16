@@ -9,6 +9,7 @@ import com.indramind.cybersec.secure_tasks_api.repository.UserRepository;
 import com.indramind.cybersec.secure_tasks_api.service.UserService;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -52,7 +53,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @PreAuthorize("#id == authentication.principal.id")
     public AppUser update(UserDTO dto, Long id){
+        if(!repository.existsById(id)) throw new ResourceNotFoundException("User with this id doesn't exist");
         AppUser user = getById(id);
         String newUsername = dto.getUsername();
         String newEmail = dto.getEmail();
