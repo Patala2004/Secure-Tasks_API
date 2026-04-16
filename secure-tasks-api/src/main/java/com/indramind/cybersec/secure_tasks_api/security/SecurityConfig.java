@@ -43,20 +43,20 @@ public class SecurityConfig {
             )
             .exceptionHandling(ex -> ex
                 .authenticationEntryPoint((request, response, authException) -> {
-                    log.warn("Authentication failed: method={}, uri={}, ip={}, errorType={}, correlationId={}",
+                    if (log.isWarnEnabled()) log.warn("Authentication failed: method={}, uri={}, ip={}, errorType={}, correlationId={}",
                         request.getMethod(),
                         request.getRequestURI(),
                         request.getRemoteAddr(),
                         authException.getClass().getSimpleName(),
-                        MDC.get("correlationId"));
+                        MDC.get(CorrelationIdFilter.CORRELATION_KEY));
                     response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                 })
                 .accessDeniedHandler((request, response, accessDeniedException) -> {
-                    log.warn("Access denied: method={}, uri={}, ip={}, correlationId={}",
+                    if (log.isWarnEnabled()) log.warn("Access denied: method={}, uri={}, ip={}, correlationId={}",
                         request.getMethod(),
                         request.getRequestURI(),
                         request.getRemoteAddr(),
-                        MDC.get("correlationId"));
+                        MDC.get(CorrelationIdFilter.CORRELATION_KEY));
                     response.sendError(HttpServletResponse.SC_FORBIDDEN);
                 })
             )

@@ -5,6 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import com.indramind.cybersec.secure_tasks_api.security.CorrelationIdFilter;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -19,9 +21,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex) {
 
-        log.warn("Resource not found: message={}, correlationId={}",
+        if (log.isWarnEnabled()) log.warn("Resource not found: message={}, correlationId={}",
             ex.getMessage(),
-            MDC.get("correlationId"));
+            MDC.get(CorrelationIdFilter.CORRELATION_KEY));
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                 new ErrorResponse(LocalDateTime.now(), ex.getMessage())
@@ -31,9 +33,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EmailInUseException.class)
     public ResponseEntity<ErrorResponse> handleEmailInUse(EmailInUseException ex){
 
-        log.warn("Email already in use: message={}, correlationId={}",
-        ex.getMessage(),
-            MDC.get("correlationId"));
+        if (log.isWarnEnabled()) log.warn("Email already in use: message={}, correlationId={}",
+            ex.getMessage(),
+            MDC.get(CorrelationIdFilter.CORRELATION_KEY));
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(
             new ErrorResponse(LocalDateTime.now(), ex.getMessage())
@@ -43,9 +45,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(CollaboratorAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleCollaboratorAlreadyExists(CollaboratorAlreadyExistsException ex){
 
-        log.warn("Collaborator already exists: message={}, correlationId={}",
+        if (log.isWarnEnabled()) log.warn("Collaborator already exists: message={}, correlationId={}",
             ex.getMessage(),
-            MDC.get("correlationId"));
+            MDC.get(CorrelationIdFilter.CORRELATION_KEY));
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(
                 new ErrorResponse(LocalDateTime.now(), ex.getMessage())
@@ -55,9 +57,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(CollaboratorNotFound.class)
     public ResponseEntity<ErrorResponse> handleCollaboratorAlreadyExists(CollaboratorNotFound ex){
 
-        log.warn("Collaborator not found: message={}, correlationId={}",
+        if (log.isWarnEnabled()) log.warn("Collaborator not found: message={}, correlationId={}",
             ex.getMessage(),
-            MDC.get("correlationId"));
+            MDC.get(CorrelationIdFilter.CORRELATION_KEY));
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                 new ErrorResponse(LocalDateTime.now(), ex.getMessage())
@@ -75,9 +77,9 @@ public class GlobalExceptionHandler {
             .reduce((a, b) -> a + " | " + b)
             .orElse("Validation error");
         
-        log.warn("Validation failed: errors={}, correlationId={}",
+        if (log.isWarnEnabled()) log.warn("Validation failed: errors={}, correlationId={}",
             errorMessage,
-            MDC.get("correlationId"));
+            MDC.get(CorrelationIdFilter.CORRELATION_KEY));
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
             new ErrorResponse(LocalDateTime.now(), errorMessage)
@@ -90,10 +92,10 @@ public class GlobalExceptionHandler {
         log.error("Unhandled exception: type={}, message={}, correlationId={}",
             ex.getClass().getSimpleName(),
             ex.getMessage(),
-            MDC.get("correlationId"),
+            MDC.get(CorrelationIdFilter.CORRELATION_KEY),
             ex);
 
-            
+
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 new ErrorResponse(LocalDateTime.now(), "Internal server error")
         );

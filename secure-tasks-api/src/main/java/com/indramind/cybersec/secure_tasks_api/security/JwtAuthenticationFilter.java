@@ -54,14 +54,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             try{
                 userDetails = userDetailsService.loadUserByUsername(username);
             } catch (UsernameNotFoundException e) {
-                log.warn("JWT user not found: email={}, ip={}", username, request.getRemoteAddr());
+                if (log.isWarnEnabled()) log.warn("JWT user not found: email={}, ip={}", username, request.getRemoteAddr());
                 filterChain.doFilter(request, response);
                 return;
             }
 
             if (!jwtService.isTokenValid(jwt, userDetails)) {
                 if (!jwtService.isTokenValid(jwt, userDetails)) {
-                    log.warn("JWT validation failed: email={}, ip={}", username, request.getRemoteAddr());
+                    if (log.isWarnEnabled()) log.warn("JWT validation failed: email={}, ip={}", username, request.getRemoteAddr());
                     filterChain.doFilter(request, response);
                     return;
                 }

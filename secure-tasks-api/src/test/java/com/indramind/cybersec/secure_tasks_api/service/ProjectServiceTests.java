@@ -11,6 +11,8 @@ import com.indramind.cybersec.secure_tasks_api.mapper.ProjectMapper;
 import com.indramind.cybersec.secure_tasks_api.mapper.UserMapper;
 import com.indramind.cybersec.secure_tasks_api.repository.ProjectRepository;
 import com.indramind.cybersec.secure_tasks_api.service.impl.ProjectServiceImpl;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -39,6 +41,27 @@ class ProjectServiceTest {
     @InjectMocks
     private ProjectServiceImpl projectService;
 
+    private AppUser currUser;
+
+    private Project securedProjectAsOwner(Long id) {
+        when(userService.getById(1L)).thenReturn(currUser);
+        
+        Project p = new Project();
+        p.setId(id);
+        p.setOwner(currUser);
+        p.setCollaborators(new HashSet<>());
+        return p;
+    }
+
+    @BeforeEach
+    void setup() { 
+        currUser = AppUser.builder()
+                .username("test@email.com")
+                .password("password")
+                .id(1L)
+                .build();
+    }
+
     @Test
     void getById_shouldReturnProject() {
         Project project = new Project();
@@ -46,7 +69,7 @@ class ProjectServiceTest {
 
         when(repository.findById(1L)).thenReturn(Optional.of(project));
 
-        Project result = projectService.getById(1L);
+        Project result = projectService.getById(1L, 1L);
 
         assertEquals(1L, result.getId());
         verify(repository).findById(1L);
@@ -57,7 +80,7 @@ class ProjectServiceTest {
         when(repository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
-                () -> projectService.getById(1L));
+                () -> projectService.getById(1L, 1L));
     }
 
     @Test
@@ -90,8 +113,7 @@ class ProjectServiceTest {
     void update_shouldModifyProjectName() {
         Long projectId = 1L;
 
-        Project project = new Project();
-        project.setId(projectId);
+        Project project = securedProjectAsOwner(projectId);
         project.setName("Old Name");
 
         ProjectDTO input = new ProjectDTO();
@@ -107,7 +129,7 @@ class ProjectServiceTest {
         when(repository.save(project)).thenReturn(updated);
         when(projectMapper.toDto(updated)).thenReturn(expected);
 
-        ProjectDTO result = projectService.update(input, projectId);
+        ProjectDTO result = projectService.update(input, projectId, 1L);
 
         assertEquals("New Name", result.getName());
         verify(repository).save(project);
@@ -117,8 +139,7 @@ class ProjectServiceTest {
     void update_shouldIgnoreBlankName() {
         Long projectId = 1L;
 
-        Project project = new Project();
-        project.setId(projectId);
+        Project project = securedProjectAsOwner(projectId);
         project.setName("Old Name");
 
         ProjectDTO input = new ProjectDTO();
@@ -128,7 +149,7 @@ class ProjectServiceTest {
         when(repository.save(project)).thenReturn(project);
         when(projectMapper.toDto(project)).thenReturn(new ProjectDTO());
 
-        projectService.update(input, projectId);
+        projectService.update(input, projectId, 1L);
 
         assertEquals("Old Name", project.getName());
         verify(repository).save(project);
@@ -138,8 +159,7 @@ class ProjectServiceTest {
     void update_shouldIgnoreNullName() {
         Long projectId = 1L;
 
-        Project project = new Project();
-        project.setId(projectId);
+        Project project = securedProjectAsOwner(projectId);
         project.setName("Old Name");
 
         ProjectDTO input = new ProjectDTO();
@@ -149,7 +169,7 @@ class ProjectServiceTest {
         when(repository.save(project)).thenReturn(project);
         when(projectMapper.toDto(project)).thenReturn(new ProjectDTO());
 
-        projectService.update(input, projectId);
+        projectService.update(input, projectId, 1L);
 
         assertEquals("Old Name", project.getName());
         verify(repository).save(project);
@@ -192,12 +212,11 @@ class ProjectServiceTest {
 
     @Test
     void delete_shouldRemoveProject() {
-        Project project = new Project();
-        project.setId(1L);
+        Project project = securedProjectAsOwner(1L);
 
         when(repository.findById(1L)).thenReturn(Optional.of(project));
 
-        projectService.delete(1L);
+        projectService.delete(1L, 1L);
 
         verify(repository).delete(project);
     }
@@ -210,14 +229,13 @@ class ProjectServiceTest {
         AppUser user = new AppUser();
         user.setId(2L);
 
-        Project project = new Project();
-        project.setId(projectId);
+        Project project = securedProjectAsOwner(projectId);
         project.setCollaborators(new HashSet<>(Set.of(user)));
 
         when(repository.findById(projectId)).thenReturn(Optional.of(project));
         when(userMapper.toDto(user)).thenReturn(new UserDTO());
 
-        List<UserDTO> result = projectService.getCollaborators(projectId);
+        List<UserDTO> result = projectService.getCollaborators(projectId, 1L);
 
         assertEquals(1, result.size());
         verify(repository).findById(projectId);
@@ -231,7 +249,7 @@ class ProjectServiceTest {
         AppUser user = new AppUser();
         user.setId(userId);
 
-        Project project = new Project();
+        Project project = securedProjectAsOwner(projectId);
         project.setCollaborators(new HashSet<>());
 
         UserDTO dto = new UserDTO();
@@ -240,7 +258,7 @@ class ProjectServiceTest {
         when(userService.getById(userId)).thenReturn(user);
         when(userMapper.toDto(user)).thenReturn(dto);
 
-        UserDTO result = projectService.addCollaborator(projectId, userId);
+        UserDTO result = projectService.addCollaborator(projectId, userId, 1L);
 
         assertNotNull(result);
         assertTrue(project.getCollaborators().contains(user));
@@ -255,7 +273,7 @@ class ProjectServiceTest {
         AppUser user = new AppUser();
         user.setId(userId);
 
-        Project project = new Project();
+        Project project = securedProjectAsOwner(projectId);
         project.setCollaborators(new HashSet<>(Set.of(user)));
 
         UserDTO dto = new UserDTO();
@@ -264,7 +282,7 @@ class ProjectServiceTest {
         when(userService.getById(userId)).thenReturn(user);
         when(userMapper.toDto(user)).thenReturn(dto);
 
-        UserDTO result = projectService.removeCollaborator(projectId, userId);
+        UserDTO result = projectService.removeCollaborator(projectId, userId, 1L);
 
         assertNotNull(result);
         assertTrue(!project.getCollaborators().contains(user));
@@ -279,14 +297,14 @@ class ProjectServiceTest {
         AppUser user = new AppUser();
         user.setId(userId);
 
-        Project project = new Project();
+        Project project = securedProjectAsOwner(projectId);
         project.setCollaborators(new HashSet<>());
 
         when(repository.findById(projectId)).thenReturn(Optional.of(project));
         when(userService.getById(userId)).thenReturn(user);
 
         assertThrows(CollaboratorNotFound.class,
-                () -> projectService.removeCollaborator(projectId, userId));
+                () -> projectService.removeCollaborator(projectId, userId, 1L));
     }
 
     @Test
@@ -297,7 +315,7 @@ class ProjectServiceTest {
         dto.setName("New Name");
 
         assertThrows(ResourceNotFoundException.class,
-                () -> projectService.update(dto, 1L));
+                () -> projectService.update(dto, 1L, 1L));
     }
 
     @Test
@@ -305,7 +323,7 @@ class ProjectServiceTest {
         when(repository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
-                () -> projectService.delete(1L));
+                () -> projectService.delete(1L, 1L));
 
         verify(repository, never()).delete(any());
     }
@@ -315,7 +333,7 @@ class ProjectServiceTest {
         when(repository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
-                () -> projectService.getCollaborators(1L));
+                () -> projectService.getCollaborators(1L, 1L));
     }
 
     @Test
@@ -326,14 +344,14 @@ class ProjectServiceTest {
         AppUser user = new AppUser();
         user.setId(userId);
 
-        Project project = new Project();
+        Project project = securedProjectAsOwner(projectId);
         project.setCollaborators(new HashSet<>(Set.of(user)));
 
         when(repository.findById(projectId)).thenReturn(Optional.of(project));
         when(userService.getById(userId)).thenReturn(user);
 
         assertThrows(CollaboratorAlreadyExistsException.class,
-                () -> projectService.addCollaborator(projectId, userId));
+                () -> projectService.addCollaborator(projectId, userId, 1L));
 
         verify(repository, never()).save(any());
     }

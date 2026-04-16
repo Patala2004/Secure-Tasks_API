@@ -18,6 +18,8 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
 
     private static final String HEADER = "X-Correlation-ID";
 
+    public static final String CORRELATION_KEY = "correlationId";
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -27,7 +29,7 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
         String correlationId = Optional.ofNullable(request.getHeader(HEADER))
                 .orElse(UUID.randomUUID().toString());
 
-        MDC.put("correlationId", correlationId);
+        MDC.put(CORRELATION_KEY, correlationId);
         response.setHeader(HEADER, correlationId);
 
         try {

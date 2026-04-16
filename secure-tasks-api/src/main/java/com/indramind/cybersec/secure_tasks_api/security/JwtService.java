@@ -2,6 +2,7 @@ package com.indramind.cybersec.secure_tasks_api.security;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Optional;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -44,7 +45,7 @@ public class JwtService{
 	}
 
 	public boolean isTokenValid(String token) {
-		return parseClaims(token) != null;
+		return parseClaims(token).isPresent();
 	}
 
 	public boolean isTokenValid(String token, UserDetails userDetails) {
@@ -53,31 +54,33 @@ public class JwtService{
 	}
 
 	public String extractEmail(String token) {
-        Claims claims = parseClaims(token);
-		return claims == null? null:claims.getSubject();
+        return parseClaims(token)
+            .map(Claims::getSubject)
+            .orElse(null);
     }
 
     public Date extractExpiration(String token) {
-		Claims claims = parseClaims(token);
-		return claims == null? null:claims.getExpiration();
+		return parseClaims(token)
+            .map(Claims::getExpiration)
+            .orElse(null);
     }
 
-	public Claims parseClaims(String token) {
+	public Optional<Claims> parseClaims(String token) {
 		try {
-			return Jwts.parserBuilder()
+			return Optional.of(Jwts.parserBuilder()
             .setSigningKey(signingKey)
             .build()
             .parseClaimsJws(token)
-            .getBody();
+            .getBody());
 
 		} catch (io.jsonwebtoken.ExpiredJwtException e) {
-			log.warn("JWT expired: correlationId={}", MDC.get("correlationId"));
+			if (log.isWarnEnabled()) log.warn("JWT expired: correlationId={}", MDC.get(CorrelationIdFilter.CORRELATION_KEY));
 		} catch (io.jsonwebtoken.security.SignatureException e) {
-			log.warn("JWT signature invalid (possible tampering): correlationId={}", MDC.get("correlationId"));
+			if (log.isWarnEnabled()) log.warn("JWT signature invalid (possible tampering): correlationId={}", MDC.get(CorrelationIdFilter.CORRELATION_KEY));
 		} catch (JwtException e) {
-			log.warn("JWT invalid: error: {}, correlationId={}", e.getClass().getSimpleName(), MDC.get("correlationId"));
+			if (log.isWarnEnabled()) log.warn("JWT invalid: error: {}, correlationId={}", e.getClass().getSimpleName(), MDC.get(CorrelationIdFilter.CORRELATION_KEY));
 		}
 		
-		return null;
+		return Optional.empty();
 	}
 }
