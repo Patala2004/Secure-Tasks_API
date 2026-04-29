@@ -169,7 +169,6 @@
 					</execution>
 				</executions>
 				<configuration>
-					<skip>true</skip>
 					<nvdApiKey>${env.NVD_API_KEY}</nvdApiKey>
 					<format>ALL</format>
 				</configuration>
