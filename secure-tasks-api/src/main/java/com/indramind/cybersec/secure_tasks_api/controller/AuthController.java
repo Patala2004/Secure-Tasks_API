@@ -31,13 +31,13 @@ public class AuthController {
 
     @PostMapping(value = "/register", consumes = "application/json")
     public String register(HttpServletRequest request, @RequestBody @Valid RegisterRequest body) {
-        if (log.isInfoEnabled()) log.info("Register attempt: email={}, ip={}, correlationId={}", body.getEmail(), request.getRemoteAddr(), MDC.get(CorrelationIdFilter.CORRELATION_KEY));
+        if (log.isInfoEnabled()) log.info("Register attempt: ip={}, correlationId={}", request.getRemoteAddr(), MDC.get(CorrelationIdFilter.CORRELATION_KEY));
         return authService.register(body);
     }
 
     @PostMapping(value = "/login", consumes = "application/json")
     public String login(HttpServletRequest request, @RequestBody @Valid LoginRequest body) {
-        if (log.isInfoEnabled()) log.info("Login attempt: email={}, ip={}, correlationId={}", body.getEmail(), request.getRemoteAddr(), MDC.get(CorrelationIdFilter.CORRELATION_KEY));
+        if (log.isInfoEnabled()) log.info("Login attempt: ip={}, correlationId={}", request.getRemoteAddr(), MDC.get(CorrelationIdFilter.CORRELATION_KEY));
         return authService.login(body.getEmail(), body.getPassword());
     }
 

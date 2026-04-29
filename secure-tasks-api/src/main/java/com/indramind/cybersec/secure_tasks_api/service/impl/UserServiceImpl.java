@@ -7,11 +7,14 @@ import com.indramind.cybersec.secure_tasks_api.exceptions.EmailInUseException;
 import com.indramind.cybersec.secure_tasks_api.exceptions.ResourceNotFoundException;
 import com.indramind.cybersec.secure_tasks_api.repository.UserRepository;
 import com.indramind.cybersec.secure_tasks_api.service.UserService;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
@@ -19,13 +22,15 @@ import java.util.List;
 @Service
 @Validated
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
 
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public AppUser create(UserPassDTO request) {
+    @Transactional
+    public AppUser create(@Valid UserPassDTO request) {
         if (repository.existsByEmail(request.getEmail())){
             throw new EmailInUseException("Email already in use");
         }
@@ -49,14 +54,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
         AppUser user = getById(id);
         repository.delete(user);
     }
 
     @Override
+    @Transactional
     @PreAuthorize("#id == authentication.principal.id")
-    public AppUser update(UserDTO dto, Long id){
+    public AppUser update(@Valid UserDTO dto, Long id){
         if(!repository.existsById(id)) throw new ResourceNotFoundException("User with this id doesn't exist");
         AppUser user = getById(id);
         String newUsername = dto.getUsername();

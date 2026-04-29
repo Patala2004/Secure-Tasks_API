@@ -88,7 +88,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return userDetailsService.loadUserByUsername(username);
         } catch (UsernameNotFoundException e) {
             if (log.isWarnEnabled()) {
-                log.warn("JWT user not found: email={}, ip={}", username, request.getRemoteAddr());
+                log.warn("JWT user not found: ip={}", request.getRemoteAddr());
             }
             return null;
         }
@@ -98,8 +98,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (!jwtService.isTokenValid(jwt, userDetails)) {
             if (log.isWarnEnabled()) {
-                log.warn("JWT validation failed: email={}, ip={}",
-                        userDetails.getUsername(),
+                log.warn("JWT validation failed:  ip={}",
                         request.getRemoteAddr());
             }
             return false;

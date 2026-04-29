@@ -4,11 +4,13 @@ import com.indramind.cybersec.secure_tasks_api.dto.UserDTO;
 import com.indramind.cybersec.secure_tasks_api.dto.ProjectDTO;
 import com.indramind.cybersec.secure_tasks_api.entity.Project;
 
+import jakarta.validation.Valid;
+
 import java.util.List;
 
 public interface ProjectService {
-	ProjectDTO create(ProjectDTO project, Long creatorId);
-	ProjectDTO update(ProjectDTO project, Long id);
+	ProjectDTO create(@Valid ProjectDTO project, Long creatorId);
+	ProjectDTO update(@Valid ProjectDTO project, Long id);
 	List<ProjectDTO> getAllFromOwner(Long userId);
 	List<ProjectDTO> getAllFromUser(Long userId);
 	void delete(Long id);

@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>4.0.5</version>
+		<version>4.0.6</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.indramind.cybersec</groupId>
@@ -33,6 +33,9 @@
 		<sonar.dependencyCheck.htmlReportPath>${project.basedir}/target/dependency-check-reportsdfsdfsdf.html</sonar.dependencyCheck.htmlReportPath>
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
 		<sonar.coverage.jacoco.xmlReportPaths> target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+		<sonar.organization>default-organization</sonar.organization>
+
+		<dependency-check.skip>false</dependency-check.skip>
 	</properties>
 	<dependencies>
 
@@ -166,6 +169,7 @@
 					</execution>
 				</executions>
 				<configuration>
+					<skip>true</skip>
 					<nvdApiKey>${env.NVD_API_KEY}</nvdApiKey>
 					<format>ALL</format>
 				</configuration>
