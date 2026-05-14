@@ -1,5 +1,9 @@
 server:
     forward-headers-strategy: framework
+    max-http-request-header-size: 16KB
+    tomcat:
+      max-http-form-post-size: 2MB
+      max-swallow-size: 2MB
 logging:
   level:
     root: INFO
@@ -19,6 +23,9 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-    show-sql: true
   secrets:
     jwt.secretkey: ${JWT_SECRET_KEY}
+  servlet:
+    multipart:
+      max-file-size: 2MB
+      max-request-size: 2MB

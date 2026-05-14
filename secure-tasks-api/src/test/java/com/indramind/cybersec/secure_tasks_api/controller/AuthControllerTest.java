@@ -50,6 +50,7 @@ class AuthControllerTest {
 		request.setUsername("newUsername");
 
         when(authService.register(any())).thenReturn("mock-token");
+        when(authService.getCurrentUser("mock-token")).thenReturn(new AppUser(1L, "newUsername", "test@example.com", "password123"));
 
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -80,6 +81,7 @@ class AuthControllerTest {
         request.setPassword("password123");
 
         when(authService.login(anyString(), anyString())).thenReturn("jwt-token");
+        when(authService.getCurrentUser("jwt-token")).thenReturn(new AppUser(1L, "username", "test@example.com", "password123"));
 
         mockMvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)

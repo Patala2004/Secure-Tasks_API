@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   db:
-    image: postgres:15
+    image: postgres@sha256:32016c79bea24c14917660106bc23a03341d94b9983aeb41f4130b4f3fbd6dd0
     container_name: secure_tasks_postgres
     restart: unless-stopped
     environment:
@@ -18,6 +18,45 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks: 
+      - secure-tasks-api-network
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
+      - DAC_READ_SEARCH
+      - FOWNER
+
+  secapi:
+    build: secure-tasks-api/.
+    ports:
+      - 8080:8080
+    read_only: true
+    tmpfs:
+      - /tmp
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: db
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+    networks: 
+      - secure-tasks-api-network
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+networks:
+  secure-tasks-api-network:
 
 volumes:
   pgdata:

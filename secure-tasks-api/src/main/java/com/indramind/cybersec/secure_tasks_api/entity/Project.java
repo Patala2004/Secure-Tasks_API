@@ -35,6 +35,10 @@ public class Project {
 	@NotNull
 	@NotBlank
 	@Length(min=5, max=50)
+	@Pattern(
+		regexp = "^[a-zA-Z0-9 ._-]{5,50}$",
+		message = "Project name may only contain letters, numbers, spaces, dots (.), underscores (_) and hyphens (-)"
+	)
 	private String name;
 
 	public void addCollaborator(AppUser user) {

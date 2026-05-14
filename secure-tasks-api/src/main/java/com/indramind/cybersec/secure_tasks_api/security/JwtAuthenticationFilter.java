@@ -6,8 +6,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,6 +13,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.indramind.cybersec.secure_tasks_api.logging.CustomLogger;
+import com.indramind.cybersec.secure_tasks_api.logging.impl.CustomLoggerFactory;
 
 import java.io.IOException;
 
@@ -25,7 +26,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserDetailsServiceImpl userDetailsService; // loads user by username
 
-    private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+    private static final CustomLogger log = CustomLoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -68,7 +69,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         authenticateUser(userDetails, request);
 
-        if (log.isDebugEnabled()) log.debug("JWT authentication success: username={}, ip={}", username, request.getRemoteAddr());
+        log.debug("JWT authentication success: username={}, ip={}", username, request.getRemoteAddr());
 
         filterChain.doFilter(request, response);
     }
@@ -87,9 +88,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             return userDetailsService.loadUserByUsername(username);
         } catch (UsernameNotFoundException e) {
-            if (log.isWarnEnabled()) {
-                log.warn("JWT user not found: ip={}", request.getRemoteAddr());
-            }
+            log.warn("JWT user not found: ip={}", request.getRemoteAddr());
             return null;
         }
     }
@@ -97,10 +96,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private boolean checkTokenValid(String jwt, UserDetails userDetails, HttpServletRequest request){
 
         if (!jwtService.isTokenValid(jwt, userDetails)) {
-            if (log.isWarnEnabled()) {
-                log.warn("JWT validation failed:  ip={}",
-                        request.getRemoteAddr());
-            }
+            log.warn("JWT validation failed:  ip={}", request.getRemoteAddr());
             return false;
         }
         return true;

@@ -55,6 +55,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    @PreAuthorize("#id == authentication.principal.id")
     public void delete(Long id) {
         AppUser user = getById(id);
         repository.delete(user);

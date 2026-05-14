@@ -16,12 +16,15 @@ import com.indramind.cybersec.secure_tasks_api.dto.RegisterRequest;
 import com.indramind.cybersec.secure_tasks_api.entity.AppUser;
 import com.indramind.cybersec.secure_tasks_api.exceptions.EmailInUseException;
 import com.indramind.cybersec.secure_tasks_api.exceptions.ResourceNotFoundException;
+import com.indramind.cybersec.secure_tasks_api.logging.CustomLogger;
+import com.indramind.cybersec.secure_tasks_api.logging.impl.CustomLoggerFactory;
 import com.indramind.cybersec.secure_tasks_api.repository.UserRepository;
 import com.indramind.cybersec.secure_tasks_api.security.CorrelationIdFilter;
 import com.indramind.cybersec.secure_tasks_api.security.JwtService;
 import com.indramind.cybersec.secure_tasks_api.security.UserDetailsServiceImpl;
 import com.indramind.cybersec.secure_tasks_api.service.AuthService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -36,15 +39,15 @@ public class AuthServiceImpl implements AuthService{
 	private final AuthenticationManager authenticationManager;
 	private final UserDetailsServiceImpl userDetailsService;
 
-	private static final Logger log = LoggerFactory.getLogger(AuthServiceImpl.class);
+	private static final CustomLogger log = CustomLoggerFactory.getLogger(AuthServiceImpl.class);
 	
 	@Transactional
 	public String register(@Valid RegisterRequest dto){
-		if (log.isInfoEnabled()) log.info("Register attempt: correlationId={}", MDC.get(CorrelationIdFilter.CORRELATION_KEY));
+		log.info("Register attempt.");
 
 		// Check if mail already exists
 		if(userRepository.findByEmail(dto.getEmail()).isPresent()){
-			if (log.isWarnEnabled()) log.warn("Register failed: email already in use: {}, correlationId={}", dto.getEmail(), MDC.get(CorrelationIdFilter.CORRELATION_KEY));
+			log.warn("Register failed: email already in use: {}", dto.getEmail());
 			throw new EmailInUseException("Email already in use");
 		}
 
@@ -65,7 +68,7 @@ public class AuthServiceImpl implements AuthService{
 
 	public String login(String email, String rawPassword){
 
-		if (log.isInfoEnabled()) log.info("Login attempt: correlationId={}", MDC.get(CorrelationIdFilter.CORRELATION_KEY));
+		log.info("Login attempt.");
 
 		Authentication authentication = authenticationManager.authenticate(
 			new UsernamePasswordAuthenticationToken(email, rawPassword)
@@ -74,7 +77,7 @@ public class AuthServiceImpl implements AuthService{
 
 		UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-		if (log.isInfoEnabled()) log.info("Login success: correlationId={}", MDC.get(CorrelationIdFilter.CORRELATION_KEY));
+		log.info("Login success!");
 
 		// Generate JWT token
 		return jwtService.generateAccessToken(userDetails);
@@ -84,13 +87,13 @@ public class AuthServiceImpl implements AuthService{
 		String email = jwtService.extractEmail(stripBearer(token));
 
 		if (email == null) {
-			if (log.isWarnEnabled()) log.warn("Invalid token: could not extract email, correlationId={}", MDC.get(CorrelationIdFilter.CORRELATION_KEY));
+			log.warn("Invalid token: could not extract email.");
 			throw new ResourceNotFoundException("Invalid token");
 		}
 
 		return userRepository.findByEmail(email)
 			.orElseThrow(() -> {
-				if (log.isWarnEnabled()) log.warn("User not found for token: correlationId={}", MDC.get(CorrelationIdFilter.CORRELATION_KEY));
+				log.warn("User not found for token");
 				return new ResourceNotFoundException("User for this token doesn't exist");
 			});
 	}

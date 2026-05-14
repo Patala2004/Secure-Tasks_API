@@ -7,6 +7,9 @@ import java.util.Optional;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import com.indramind.cybersec.secure_tasks_api.logging.CustomLogger;
+import com.indramind.cybersec.secure_tasks_api.logging.impl.CustomLoggerFactory;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.JwtException;
@@ -14,9 +17,6 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import javax.crypto.SecretKey;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 
 @Service
@@ -25,7 +25,7 @@ public class JwtService{
 	private final SecretKey signingKey;
 	private final long accessTokenExpirationMs;
 
-	private static final Logger log = LoggerFactory.getLogger(JwtService.class);
+	private static final CustomLogger log = CustomLoggerFactory.getLogger(JwtService.class);
 
 	public JwtService(@Value("${spring.secrets.jwt.secretkey}") String secretKey,
 						@Value("${spring.secrets.jwt.expiration-ms:900000}") long accessTokenExpirationMs) {
@@ -74,11 +74,11 @@ public class JwtService{
             .getBody());
 
 		} catch (io.jsonwebtoken.ExpiredJwtException e) {
-			if (log.isWarnEnabled()) log.warn("JWT expired: correlationId={}", MDC.get(CorrelationIdFilter.CORRELATION_KEY));
+			log.warn("JWT expired. Expiration: {}, Token created at: {}", e.getClaims().getExpiration(), e.getClaims().getIssuedAt());
 		} catch (io.jsonwebtoken.security.SignatureException e) {
-			if (log.isWarnEnabled()) log.warn("JWT signature invalid (possible tampering): correlationId={}", MDC.get(CorrelationIdFilter.CORRELATION_KEY));
+			log.warn("JWT signature invalid (possible tampering)");
 		} catch (JwtException e) {
-			if (log.isWarnEnabled()) log.warn("JWT invalid: error: {}, correlationId={}", e.getClass().getSimpleName(), MDC.get(CorrelationIdFilter.CORRELATION_KEY));
+			log.warn("JWT invalid: error: {}", e.getClass().getSimpleName());
 		}
 		
 		return Optional.empty();

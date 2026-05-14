@@ -1,0 +1,29 @@
+<configuration>
+
+    <appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <includeContext>true</includeContext>
+            <includeMdc>true</includeMdc>
+        </encoder>
+    </appender>
+
+    <!-- Async wrapper -->
+    <appender name="ASYNC_JSON" class="ch.qos.logback.classic.AsyncAppender">
+        <!-- Queue size -->
+        <queueSize>5000</queueSize>
+        <!-- Never discard INFO/WARN/ERROR logs -->
+        <discardingThreshold>0</discardingThreshold>
+        <!-- Block when queue is full instead of dropping logs -->
+        <neverBlock>false</neverBlock>
+        <appender-ref ref="JSON_CONSOLE"/>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="ASYNC_JSON"/>
+    </root>
+
+    <!-- Reduce noise -->
+    <logger name="org.springframework" level="WARN"/>
+    <logger name="org.hibernate" level="WARN"/>
+
+</configuration>

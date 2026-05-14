@@ -20,7 +20,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
-import org.springframework.security.web.header.writers.StaticHeadersWriter;
+
+import com.indramind.cybersec.secure_tasks_api.logging.CustomLogger;
+import com.indramind.cybersec.secure_tasks_api.logging.impl.CustomLoggerFactory;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -29,7 +31,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
+    private static final CustomLogger log = CustomLoggerFactory.getLogger(SecurityConfig.class);
 
     private final JwtAuthenticationFilter jwtFilter;
 
@@ -71,20 +73,18 @@ public class SecurityConfig {
             )
             .exceptionHandling(ex -> ex
                 .authenticationEntryPoint((request, response, authException) -> {
-                    if (log.isWarnEnabled()) log.warn("Authentication failed: method={}, uri={}, ip={}, errorType={}, correlationId={}",
+                    log.warn("Authentication failed: method={}, uri={}, ip={}, errorType={}",
                         request.getMethod(),
                         request.getRequestURI(),
                         request.getRemoteAddr(),
-                        authException.getClass().getSimpleName(),
-                        MDC.get(CorrelationIdFilter.CORRELATION_KEY));
+                        authException.getClass().getSimpleName());
                     response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                 })
                 .accessDeniedHandler((request, response, accessDeniedException) -> {
-                    if (log.isWarnEnabled()) log.warn("Access denied: method={}, uri={}, ip={}, correlationId={}",
+                    log.warn("Access denied: method={}, uri={}, ip={}",
                         request.getMethod(),
                         request.getRequestURI(),
-                        request.getRemoteAddr(),
-                        MDC.get(CorrelationIdFilter.CORRELATION_KEY));
+                        request.getRemoteAddr());
                     response.sendError(HttpServletResponse.SC_FORBIDDEN);
                 })
             )

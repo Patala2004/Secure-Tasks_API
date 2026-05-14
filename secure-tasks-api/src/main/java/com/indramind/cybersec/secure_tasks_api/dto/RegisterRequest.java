@@ -29,7 +29,7 @@ public class RegisterRequest {
 	@NotBlank(message = "Password is required")
 	@Size(min = 9, max = 200, message = "Password must be 9-200 characters long")
 	@Pattern(
-        regexp = "^[\\p{Print}]+$", // Only allow printable characters (dont allow control chars)
+        regexp = "^[^\\p{Cntrl}]+$", // Only allow printable characters (dont allow control chars)
         message = "Password may contain only printable characters"
     ) 
 	private String password;
