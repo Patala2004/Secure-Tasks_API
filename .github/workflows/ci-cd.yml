@@ -190,7 +190,7 @@ jobs:
   
   deploy:
     runs-on: ubuntu-latest
-    needs: [unit-tests, dependency-scan, sonarQube]
+    needs: [unit-tests, dependency-scan, sonarQube, spotbugs]
     if: github.ref == 'refs/heads/main'
     steps:
       - name: Checkout code
