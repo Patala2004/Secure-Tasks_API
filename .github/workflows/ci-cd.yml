@@ -107,6 +107,12 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
+      
+      - name: Download compiled classes + test classes
+        uses: actions/download-artifact@master
+        with:
+          name: build-artifacts
+          path: secure-tasks-api/target
 
       - name: Cache Maven packages
         uses: actions/cache@v3
@@ -118,7 +124,7 @@ jobs:
 
       - name: Run SpotBugs analysis
         working-directory: ./secure-tasks-api
-        run: mvn verify
+        run: mvn spotbugs:check
 
       - name: Upload SpotBugs reports
         uses: actions/upload-artifact@master
