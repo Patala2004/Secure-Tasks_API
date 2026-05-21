@@ -76,20 +76,6 @@ class UserControllerTest {
         assertThat(savedUser.getEmail()).isEqualTo("testuser@example.com");
     }
 
-    // @Test
-    // void testGetAllUsers() throws Exception {
-    //     AppUser user = new AppUser();
-    //     user.setUsername("user1");
-    //     user.setPassword("password123");
-    //     user.setEmail("testuser@example.com");
-    //     userRepository.save(user);
-
-    //     mockMvc.perform(get("/api/users").header("Authorization", "Bearer dummy-token"))
-    //             .andExpect(status().isOk())
-    //             .andExpect(jsonPath("$.length()").value(1))
-    //             .andExpect(jsonPath("$[0].username").value("user1"));
-    // }
-
     @Test
     void testGetUserById() throws Exception {
         AppUser user = new AppUser();

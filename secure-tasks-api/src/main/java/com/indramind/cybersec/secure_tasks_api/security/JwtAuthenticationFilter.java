@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 
 import com.indramind.cybersec.secure_tasks_api.logging.CustomLogger;
 import com.indramind.cybersec.secure_tasks_api.logging.impl.CustomLoggerFactory;
@@ -28,28 +29,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final CustomLogger log = CustomLoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
+
+    DefaultBearerTokenResolver resolver = new DefaultBearerTokenResolver();
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        final String authHeader = request.getHeader("Authorization");
+        final String jwt = resolver.resolve(request); // remove "Bearer " and extract just the token
 
-        if (isMissingOrInvalidHeader(authHeader)) {
+        if (jwt == null) {
             log.debug("No JWT token found: method={}, uri={}, ip={}",
                 request.getMethod(),
                 request.getRequestURI(),
                 request.getRemoteAddr()); // This is debug because public endpoints would also trigger this (like /login)
+
             filterChain.doFilter(request, response);
             return;
         }
 
-        final String jwt;
-        final String username;
 
-        jwt = authHeader.substring(7); // remove "Bearer "
-        username = jwtService.extractEmail(jwt); // If token is not valid username == null (exception caught in service layer and logged)
+        final String username = jwtService.extractEmail(jwt); // If token is not valid username == null (exception caught in service layer and logged)
 
         if (!shouldAuthenticate(username)) {
             filterChain.doFilter(request, response);
@@ -72,10 +74,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         log.debug("JWT authentication success: username={}, ip={}", username, request.getRemoteAddr());
 
         filterChain.doFilter(request, response);
-    }
-
-    private boolean isMissingOrInvalidHeader(String authHeader) {
-        return authHeader == null || !authHeader.startsWith("Bearer ");
     }
 
     private boolean shouldAuthenticate(String username) {
@@ -116,5 +114,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         SecurityContextHolder.getContext().setAuthentication(authToken);
     }
-
 }

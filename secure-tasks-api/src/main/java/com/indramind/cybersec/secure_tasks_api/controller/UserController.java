@@ -1,7 +1,6 @@
 package com.indramind.cybersec.secure_tasks_api.controller;
 
 import com.indramind.cybersec.secure_tasks_api.dto.UserDTO;
-import com.indramind.cybersec.secure_tasks_api.entity.AppUser;
 import com.indramind.cybersec.secure_tasks_api.logging.CustomLogger;
 import com.indramind.cybersec.secure_tasks_api.logging.impl.CustomLoggerFactory;
 import com.indramind.cybersec.secure_tasks_api.mapper.UserMapper;
@@ -27,7 +26,7 @@ public class UserController {
 
     private final UserMapper mapper;
 
-    private static final CustomLogger log = CustomLoggerFactory.getLogger(ProjectController.class);
+    private static final CustomLogger log = CustomLoggerFactory.getLogger(UserController.class);
 
     @GetMapping("/{id}")
     public UserDTO getById(@PathVariable @Min(1) Long id) {

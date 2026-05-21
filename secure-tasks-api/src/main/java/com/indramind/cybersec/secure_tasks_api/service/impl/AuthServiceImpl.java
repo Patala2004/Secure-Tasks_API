@@ -1,8 +1,5 @@
 package com.indramind.cybersec.secure_tasks_api.service.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,12 +16,10 @@ import com.indramind.cybersec.secure_tasks_api.exceptions.ResourceNotFoundExcept
 import com.indramind.cybersec.secure_tasks_api.logging.CustomLogger;
 import com.indramind.cybersec.secure_tasks_api.logging.impl.CustomLoggerFactory;
 import com.indramind.cybersec.secure_tasks_api.repository.UserRepository;
-import com.indramind.cybersec.secure_tasks_api.security.CorrelationIdFilter;
 import com.indramind.cybersec.secure_tasks_api.security.JwtService;
 import com.indramind.cybersec.secure_tasks_api.security.UserDetailsServiceImpl;
 import com.indramind.cybersec.secure_tasks_api.service.AuthService;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 

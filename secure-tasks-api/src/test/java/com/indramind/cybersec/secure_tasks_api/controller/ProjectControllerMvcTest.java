@@ -211,23 +211,4 @@ class ProjectControllerMvcTest {
                         .header("Authorization", token))
                 .andExpect(status().isOk());
     }
-
-    // ---------------- SECURITY ----------------
-
-    // @Test
-    // void shouldReturnUnauthorized_whenTokenInvalid() throws Exception {
-    //     given(jwtService.isTokenValid(token)).willReturn(false);
-
-    //     mockMvc.perform(get("/api/projects")
-    //                     .header("Authorization", token)
-    //                     .param("userId", "1"))
-    //             .andExpect(status().isUnauthorized());
-    // }
-
-    // @Test
-    // void shouldReturnUnauthorized_whenMissingToken() throws Exception {
-    //     mockMvc.perform(get("/api/projects")
-    //                     .param("userId", "1"))
-    //             .andExpect(status().isUnauthorized());
-    // }
 }
