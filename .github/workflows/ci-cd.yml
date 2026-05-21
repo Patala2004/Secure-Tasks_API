@@ -95,6 +95,7 @@ jobs:
            path: ${{github.workspace}}/secure-tasks-api/target
   
   spotbugs:
+    needs: [unit-tests]
     runs-on: ubuntu-latest
 
     steps:
